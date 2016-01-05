@@ -10,7 +10,6 @@ public class MainMenu extends JFrame {
         initComponents();
     }
 
-    @SuppressWarnings("unchecked")
     private void initComponents() {
 
         menuExitGameButton = new JButton();
