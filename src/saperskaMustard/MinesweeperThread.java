@@ -18,7 +18,7 @@ public class MinesweeperThread extends  Thread{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        OutputStream out = null;
+
 
 
     }
