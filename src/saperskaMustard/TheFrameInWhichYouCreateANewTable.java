@@ -6,10 +6,10 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 
 	String username;
 	int boardSize;
-	public final static int PORT = 5000;
+	public final static int DEFAULT_PORT = 5000;
 	final private static int DEFAULT_SIZE = 10;
 	final private static String DEFAULT_USERNAME_FIELD_TEXT = "TEST";
-	final public static String DEFAULT_IP_ADDRESS = "192.168.1.22";
+	final public static String DEFAULT_IP_ADDRESS = "192.168.1.17";
 
 	public TheFrameInWhichYouCreateANewTable() {
 
@@ -166,8 +166,9 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 			else {
 				username = username.trim();
 				System.out.println("The birth of a new table begins now.");
-				
-				System.out.println("Shouold be establishing connection with server now.");
+				System.out.println("Should be establishing connection with server now.");
+				ServerConnection hostConnection = new ServerConnection(true,DEFAULT_IP_ADDRESS,DEFAULT_PORT,username,boardSize);//starting server connection as host
+
 				//and sending to the server boardSize, and username of host
 				//and an ip address?
 				
