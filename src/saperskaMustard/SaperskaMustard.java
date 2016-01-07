@@ -6,9 +6,6 @@ public class SaperskaMustard {
 		
 		MainMenu.run();
 		
-	
-		
-		
 	}
 
 }
