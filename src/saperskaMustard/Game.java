@@ -11,7 +11,7 @@ public class Game {
 	public int boardSize;
 	boolean firstClick = false;
 	String ip;
-	ArrayList<String>players;
+	ArrayList<String>players = new ArrayList<>();
 	
 	public Game(String usernameOfHost, int boardSize, String ip) {
 		this.usernameOfHost = usernameOfHost;

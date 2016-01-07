@@ -223,7 +223,7 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 	}
 
 	// Variables declaration  also needs ip
-	private JTextField theIpField;
+	private JTextField theIpField = new JTextField();
 	private JButton createTableButton;
 	private JButton backToMMButton;
 	private JLabel sizeLabel;
