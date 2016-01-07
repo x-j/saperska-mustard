@@ -5,24 +5,18 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Stack;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 
-public class Square extends JButton{
+public class Square{
 
 	static ArrayList<Square>ALL_SQUARES = new ArrayList<>();
 	char content = 'd';
 	boolean uncovered = false;
 	Board board;
-	ActionListener  squareActionListener= new ActionListener() {
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			((Square) e.getSource()).uncover();		
-		}
-		
-	};
 	int i, j; //coordinates
 	
 
@@ -32,36 +26,48 @@ public class Square extends JButton{
 		this.board = board;
 		this.i = i;
 		this.j = j;
-		createButton();
 		ALL_SQUARES.add(this);
 	}
 
-	private void createButton() {
-		this.setFont(new Font("Tahoma", Font.BOLD, 13));
-		this.setPreferredSize(new Dimension(20, 20));
-		this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-		this.setEnabled(true);
-		this.setVisible(true);
-		this.setHorizontalAlignment(SwingConstants.CENTER);
-		this.addActionListener(squareActionListener);
-	}
 
 	void uncover() {
-		reveal();
-		if(content == 'm'){
-			JOptionPane.showMessageDialog(this.getParent(), "Lol, you lost XD");
-			for (Square square : ALL_SQUARES) {
-				if(square.content == 'm') square.reveal();
-				square.setEnabled(false);
-			}
-		}
+		uncovered = true;
+		if(content == 'm')
+			board.gameOver = true;
 	}
 
-	private void reveal() {
-		uncovered = true;
-		this.setEnabled(false);
-		this.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		this.setText(""+content);		
+
+	private ArrayList<Square> getNeighbours() {
+		ArrayList<Square> list = new ArrayList<>();
+		
+		int i2 = i;
+		int j2 = j;
+		i2++;
+		if (board.squareExists(i2, j2)) list.add(getSquareAt(i2,j2));
+		j2++;
+		if (board.squareExists(i2, j2)) list.add(getSquareAt(i2,j2));
+		i2--;
+		if (board.squareExists(i2, j2)) list.add(getSquareAt(i2,j2));
+		i2--;
+		if (board.squareExists(i2, j2)) list.add(getSquareAt(i2,j2));
+		j2--;
+		if (board.squareExists(i2, j2)) list.add(getSquareAt(i2,j2));
+		j2--;
+		if (board.squareExists(i2, j2)) list.add(getSquareAt(i2,j2));
+		i2++;
+		if (board.squareExists(i2, j2)) list.add(getSquareAt(i2,j2));
+		i2++;
+		if (board.squareExists(i2, j2)) list.add(getSquareAt(i2,j2));
+
+		
+		return list;
+	}
+
+	private Square getSquareAt(int i2, int j2) {
+		for (Square square : ALL_SQUARES) {
+			if(square.i == i2 && square.j == j2) return square;
+		}
+		return null;
 	}
 	
 }

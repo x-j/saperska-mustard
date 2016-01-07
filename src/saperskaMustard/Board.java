@@ -1,30 +1,43 @@
 package saperskaMustard;
 
-import java.security.GeneralSecurityException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Board {
+public class Board implements Serializable{
 
 	Square[][] squares;
 	public int numberOfMines = 0;
-	public int flagsDeployed = 0;
+	private boolean firstClick = false; 
 	int boardSize;
-	Player currentPlayer;
+	Player[] players;
+	public String usernameOfHost;
+	public boolean gameOver = false;
+	public boolean gameStarted = false;
 
 	public Board(int boardSize, String usernameOfHost) {
 		this.boardSize = boardSize;
-		currentPlayer = new Player(usernameOfHost);
+		this.usernameOfHost = usernameOfHost;
 		squares = new Square[boardSize][boardSize];
 		numberOfMines = (int) (Math.pow(boardSize, 2) * 0.18);
+		
+		
+	}
+	
+	public void firstClick(int i, int j){
+		
 		char[] tempArrayThatHelpsSetUpBombs = new char[(int) Math.pow(boardSize, 2)];
 		char[][] anotherTempArray = new char[boardSize][boardSize];
 		Arrays.fill(tempArrayThatHelpsSetUpBombs, '-');
 		System.out.println("SettingUpBombs...");
-		setUpBombs(tempArrayThatHelpsSetUpBombs, anotherTempArray);
+		setUpBombs(tempArrayThatHelpsSetUpBombs, anotherTempArray, i , j);
 		setUpNumbers(anotherTempArray);
 		createSquares(anotherTempArray);
+		
+		//send to client squares[i][j]
+		
 	}
+	
 
 	private void setUpNumbers(char[][] anotherTempArray) {
 
@@ -41,14 +54,14 @@ public class Board {
 		}
 	}
 
-	private void setUpBombs(char[] tempArrayThatHelpsSetUpBombs, char[][] anotherTempArray) {
+	private void setUpBombs(char[] tempArrayThatHelpsSetUpBombs, char[][] anotherTempArray, int i2, int j2) {
 
 		for (int i = 0; i < numberOfMines; i++) {
 			int index;
 			do {
 				System.out.println("randomizing an index for a mine now");
 				index = (int) (Math.random() * tempArrayThatHelpsSetUpBombs.length);
-			} while (tempArrayThatHelpsSetUpBombs[index] == 'm');
+			} while (tempArrayThatHelpsSetUpBombs[index] == 'm' &&   (j2 != index%boardSize && i2!= index/boardSize)   );
 			tempArrayThatHelpsSetUpBombs[index] = 'm';
 		}
 		int i = 0;
@@ -83,7 +96,7 @@ public class Board {
 		return neighbours;
 	}
 
-	private boolean squareExists(int i, int j) {
+	public boolean squareExists(int i, int j) {
 		if (i < 0 || j < 0) return false;
 		if (i >= boardSize || j >= boardSize) return false;
 		return true;

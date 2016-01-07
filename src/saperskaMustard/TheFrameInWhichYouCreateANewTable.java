@@ -6,8 +6,10 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 
 	String username;
 	int boardSize;
+	public final static int PORT = 5000;
 	final private static int DEFAULT_SIZE = 10;
 	final private static String DEFAULT_USERNAME_FIELD_TEXT = "TEST";
+	final public static String DEFAULT_IP_ADDRESS = "192.168.1.22";
 
 	public TheFrameInWhichYouCreateANewTable() {
 
@@ -26,7 +28,9 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setTitle("Saperska Mustard");
 		setResizable(false);
-
+		
+		theIpField.setText(DEFAULT_IP_ADDRESS);
+		
 		theFieldInWhichYouInputYourUsername.setText(DEFAULT_USERNAME_FIELD_TEXT);
 		theFieldInWhichYouInputYourUsername.setToolTipText("enter your username here");
 
@@ -153,7 +157,7 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 	private void createTableButtonActionPerformed(java.awt.event.ActionEvent evt) {
 
 		boardSize = sizeSlider.getValue();
-
+		String ip = theIpField.getText();
 		username = theFieldInWhichYouInputYourUsername.getText();
 
 		if (username.length() < 11) {
@@ -162,7 +166,16 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 			else {
 				username = username.trim();
 				System.out.println("The birth of a new table begins now.");
-				TableGUI table = new TableGUI(username, boardSize);
+				
+				System.out.println("Shouold be establishing connection with server now.");
+				//and sending to the server boardSize, and username of host
+				//and an ip address?
+				
+				
+				
+				Game game = new Game(username, boardSize, ip);
+				
+				TableGUI table = new TableGUI(username, boardSize, game);
 				this.dispose();
 			}
 		} else
@@ -209,7 +222,8 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 		});
 	}
 
-	// Variables declaration
+	// Variables declaration  also needs ip
+	private JTextField theIpField;
 	private JButton createTableButton;
 	private JButton backToMMButton;
 	private JLabel sizeLabel;

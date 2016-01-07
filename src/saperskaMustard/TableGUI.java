@@ -1,10 +1,12 @@
 package saperskaMustard;
 
-import java.awt.Component;
-import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -12,9 +14,12 @@ import javax.swing.*;
 
 public class TableGUI extends JFrame {
 
-	String usernameOfHost;
+	final String usernameOfHost;
 	int boardSize;
-	Board board;
+	Chatbox chatbox = new Chatbox();
+	SquareButton[][] boardButtons;
+	Game game;
+	String clientUsername;
 
 	private JPanel boardPanel;
 	private JTextArea chatboxArea;
@@ -26,18 +31,19 @@ public class TableGUI extends JFrame {
 	private JLabel statusIcon;
 	private JLabel whosePlayerTurnItIsLabel;
 
-	public TableGUI(String username, int boardSize) {
+	public TableGUI(String username, int boardSize, Game game) {
 
-		this.usernameOfHost = username;
+		this.game = game;
+		usernameOfHost = game.usernameOfHost;
+		this.clientUsername = username;
 		this.boardSize = boardSize;
+		this.boardButtons = new SquareButton[boardSize][boardSize];
 
-		System.out.println("Entering the Board constructor...");
-		board = new Board(boardSize, usernameOfHost);
-		
 		setTitle("Saperska Mustard - " + usernameOfHost + "'s room");
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		addWindowListener(new WindowAdapter() { // this block adds the exit prompt
+		addWindowListener(new WindowAdapter() { // this block adds the exit
+												// prompt
 			public void windowClosing(WindowEvent we) {
 
 				String ObjButtons[] = { "Yes", "No" };
@@ -50,8 +56,16 @@ public class TableGUI extends JFrame {
 			}
 		});
 		setResizable(false);
+		this.lookAndFeelCustomization();
 		initComponents();
-		this.start();
+		makeTheTable();
+		initializeChatbox();
+
+	}
+
+	private void initializeChatbox() {
+
+		chatboxArea.setEditable(false);
 
 	}
 
@@ -67,12 +81,18 @@ public class TableGUI extends JFrame {
 		paneOfChatbox = new JScrollPane();
 		chatboxArea = new JTextArea();
 
-		whosePlayerTurnItIsLabel.setFont(new java.awt.Font("Tahoma", 3, 12)); // NOI18N
-
-		if (boardSize >= 10)
-			whosePlayerTurnItIsLabel.setText("<html>It's " + board.currentPlayer + "'s turn. </html>");
+		if (clientUsername == usernameOfHost)
+			startGameButton.setVisible(true);
 		else
-			whosePlayerTurnItIsLabel.setText("<html>" + board.currentPlayer + "'s turn. </html>");
+			startGameButton.setVisible(false);
+
+		whosePlayerTurnItIsLabel.setFont(new java.awt.Font("Tahoma", 3, 12));
+		whosePlayerTurnItIsLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+
+		if (boardSize >= 14)
+			whosePlayerTurnItIsLabel.setText("<html>Waiting for the game to start</html>");
+		else
+			whosePlayerTurnItIsLabel.setText("<html>Waiting for start</html>");
 
 		whosePlayerTurnItIsLabel.setPreferredSize(new java.awt.Dimension(boardSize * 15 / 2, 15));
 
@@ -92,7 +112,7 @@ public class TableGUI extends JFrame {
 		statusIcon.setText("status");
 
 		minesLeftLabel.setFont(new java.awt.Font("Tahoma", 3, 12)); // NOI18N
-		minesLeftLabel.setText((board.numberOfMines - board.flagsDeployed) + " mines left");
+		minesLeftLabel.setText("<html>" + (game.numberOfMines - game.flagsDeployed) + " mines left</html>");
 
 		chatboxArea.setColumns(boardSize);
 		chatboxArea.setRows(boardSize);
@@ -211,6 +231,33 @@ public class TableGUI extends JFrame {
 		pack();
 		setLocationRelativeTo(null);
 
+		addActionListeners();
+
+	}
+
+	private void addActionListeners() {
+		chatboxMessageField.addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					String message = ((JTextField) e.getSource()).getText();
+					message = clientUsername + "> " + message;
+					chatboxMessageField.setText("");
+					chatbox.sendMessage(message);
+				}
+			}
+		});
 		quitToMMButton.addActionListener(new ActionListener() { // this block
 
 					// adds the exit
@@ -230,9 +277,26 @@ public class TableGUI extends JFrame {
 						}
 					}
 				});
+
+		startGameButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				SquareButton.gameStart();
+				startGameButton.setVisible(false);
+				chatbox.sendMessage("[" + usernameOfHost + " started the game!]");
+				Game.start();
+				if (boardSize >= 12)
+					whosePlayerTurnItIsLabel.setText("<html>It's " + game.currentPlayer + "'s turn. </html>");
+				else
+					whosePlayerTurnItIsLabel.setText("<html>" + game.currentPlayer + "'s turn. </html>");
+
+			}
+		});
+
 	}
 
-	public void start() {
+	public void lookAndFeelCustomization() {
 
 		try {
 			for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -256,7 +320,7 @@ public class TableGUI extends JFrame {
 		}
 
 		// above is weird NetBeans stuff, let's start with the cool method below
-		makeTheTable();
+
 	}
 
 	private void makeTheTable() {
@@ -269,7 +333,49 @@ public class TableGUI extends JFrame {
 
 		for (int i = 0; i < boardSize; i++) {
 			for (int j = 0; j < boardSize; j++) {
-				boardPanel.add(board.squares[i][j]);
+				SquareButton newSB = new SquareButton(game);
+				newSB.addMouseListener(new MouseListener() {
+
+					@Override
+					public void mouseReleased(MouseEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void mousePressed(MouseEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void mouseExited(MouseEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void mouseEntered(MouseEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void mouseClicked(MouseEvent e) {
+						// TODO Auto-generated method stub
+						if (e.getButton() == MouseEvent.BUTTON2) {
+							if (newSB.flagged) {
+								game.numberOfMines++;
+
+							} else {
+								((SquareButton) e.getSource()).setText("F");
+								game.numberOfMines--;
+							}
+						}
+					}
+				});
+				boardButtons[i][j] = newSB;
+				boardPanel.add(boardButtons[i][j]);
 			}
 		}
 
