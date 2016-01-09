@@ -41,11 +41,16 @@ public class MinesweeperThreadedServer {
         Thread handleObjectsInQueue = new Thread(){
             public void run(){
                 while(true){
+                    ///////////////////////////////////////////////////////////////////////////
+                    /////WE DECIDE WHAT OBJECT WAS OBTAINED, AND WHO DO WE SEND IT TO HERE/////
+                    ///////////////////////////////////////////////////////////////////////////
+
                     try {
                         Object nextObjectInQueue = receivedObjects.take();
-                        ///////////////////////////////////////////////////////////////////////////
-                        /////WE DECIDE WHAT OBJECT WAS OBTAINED, AND WHO DO WE SEND IT TO HERE/////
-                        ///////////////////////////////////////////////////////////////////////////
+                        if(nextObjectInQueue instanceof  String){
+                            //We received a chat message
+
+                        }
 
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -57,7 +62,7 @@ public class MinesweeperThreadedServer {
         handleObjectsInQueue.start();
 
         try {
-            waitingForClientsToConnect.join();
+            waitingForClientsToConnect.join(); //wait for threads to finish (they won't finish since they have infinite loops, but we need this so program won't exit immediately)
             handleObjectsInQueue.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
