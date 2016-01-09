@@ -333,7 +333,7 @@ public class TableGUI extends JFrame {
 
 		for (int i = 0; i < boardSize; i++) {
 			for (int j = 0; j < boardSize; j++) {
-				SquareButton newSB = new SquareButton(game);
+				final SquareButton newSB = new SquareButton(game);
 				newSB.addMouseListener(new MouseListener() {
 
 					@Override
