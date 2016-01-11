@@ -1,6 +1,7 @@
 package saperskaMustard;
 
 import javax.swing.*;
+import java.io.IOException;
 
 public class TheFrameInWhichYouCreateANewTable extends JFrame {
 
@@ -167,16 +168,18 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 				username = username.trim();
 				System.out.println("The birth of a new table begins now.");
 				System.out.println("Should be establishing connection with server now.");
-				ServerConnection hostConnection = new ServerConnection(true,DEFAULT_IP_ADDRESS,DEFAULT_PORT,username,boardSize);//starting server connection as host
 
 				//and sending to the server boardSize, and username of host
 				//and an ip address?
-				
-				
-				
-				Game game = new Game(username, boardSize, ip);
-				
+				int gameID = 1000;
+				Game game = new Game(username, boardSize, ip,gameID);
 				TableGUI table = new TableGUI(username, boardSize, game);
+				try {
+					Client hostConnection = new Client(true,DEFAULT_IP_ADDRESS,DEFAULT_PORT,username,boardSize);//starting server connection as host (new lobby)
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
 				this.dispose();
 			}
 		} else

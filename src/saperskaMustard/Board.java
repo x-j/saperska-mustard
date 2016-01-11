@@ -15,6 +15,7 @@ public class Board implements Serializable{
 	public boolean gameOver = false;
 	public boolean gameStarted = false;
 
+
 	public Board(int boardSize, String usernameOfHost) {
 		this.boardSize = boardSize;
 		this.usernameOfHost = usernameOfHost;
@@ -111,5 +112,6 @@ public class Board implements Serializable{
 		}
 
 	}
+
 
 }
