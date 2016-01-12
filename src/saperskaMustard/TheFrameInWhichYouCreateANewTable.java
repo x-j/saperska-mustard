@@ -1,22 +1,40 @@
 package saperskaMustard;
 
 import javax.swing.*;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import java.awt.*;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class TheFrameInWhichYouCreateANewTable extends JFrame {
+
+	//whoops, this class will get recreated any second now
 
 	String username;
 	int boardSize;
 	public final static int DEFAULT_PORT = 5000;
 	final private static int DEFAULT_SIZE = 10;
 	final private static String DEFAULT_USERNAME_FIELD_TEXT = "TEST";
-	final public static String DEFAULT_IP_ADDRESS = "192.168.1.17";
+	public static String DEFAULT_IP_ADDRESS;
+
 
 	public TheFrameInWhichYouCreateANewTable() {
-
+		setType(Type.UTILITY);
+		setPreferredSize(new Dimension(230, 250));
+		setResizable(false);
+		try {
+			DEFAULT_IP_ADDRESS = InetAddress.getLocalHost().toString();
+			DEFAULT_IP_ADDRESS = DEFAULT_IP_ADDRESS.substring(DEFAULT_IP_ADDRESS.indexOf("/") + 1);
+		} catch ( UnknownHostException e ) {
+			e.printStackTrace();
+		}
+//		silly constructor, has only one method inside
 		initComponents();
 	}
 
+	// method initComponents created mostly using NetBeans, so it contains some weird stuff, for example Group Layout
 	private void initComponents() {
 
 		theFieldInWhichYouInputYourUsername = new JTextField();
@@ -24,14 +42,12 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 		sizeLabel = new JLabel();
 		createTableButton = new JButton();
 		backToMMButton = new JButton();
-		sizeSlider = new JSlider();
 
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setTitle("Saperska Mustard");
-		setResizable(false);
-		
+
 		theIpField.setText(DEFAULT_IP_ADDRESS);
-		
+
 		theFieldInWhichYouInputYourUsername.setText(DEFAULT_USERNAME_FIELD_TEXT);
 		theFieldInWhichYouInputYourUsername.setToolTipText("enter your username here");
 
@@ -39,13 +55,13 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 		usernameLabel.setText("Username:");
 
 		sizeLabel.setFont(new java.awt.Font("Tahoma", 1, 12));
-		sizeLabel.setText("Size:");
+		sizeLabel.setText("IP of server:");
 
 		createTableButton.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 		createTableButton.setText("Create the table");
 		createTableButton.addActionListener(new java.awt.event.ActionListener() {
 
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+			public void actionPerformed( java.awt.event.ActionEvent evt ) {
 
 				createTableButtonActionPerformed(evt);
 			}
@@ -55,99 +71,74 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 		backToMMButton.setText("Back to Main Menu");
 		backToMMButton.addActionListener(new java.awt.event.ActionListener() {
 
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+			public void actionPerformed( java.awt.event.ActionEvent evt ) {
 
 				backToMMButtonActionPerformed(evt);
 			}
 		});
 
-		sizeSlider.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
-		sizeSlider.setMajorTickSpacing(2);
-		sizeSlider.setMinimum(4);
-		sizeSlider.setMaximum(30);
-		sizeSlider.setPaintLabels(true);
-		sizeSlider.setPaintTicks(true);
-		sizeSlider.setToolTipText("the size for your board");
-		sizeSlider.setValue(DEFAULT_SIZE);
-		sizeSlider.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+		label = new JLabel();
+		label.setText("Size:");
+		label.setFont(new Font("Tahoma", Font.BOLD, 12));
+
+		textField = new JTextField(DEFAULT_IP_ADDRESS);
+		textField.setToolTipText("enter the IP of the server here");
+
+		spinner = new JSpinner();
+		spinner.setModel(new SpinnerNumberModel(10, 6, 40, 1));
 
 		GroupLayout layout = new GroupLayout(getContentPane());
-		getContentPane().setLayout(layout);
-		layout.setHorizontalGroup(layout
-				.createParallelGroup(GroupLayout.Alignment.LEADING)
-				.addGroup(
-						layout.createSequentialGroup()
+		layout.setHorizontalGroup(
+				layout.createParallelGroup(Alignment.LEADING)
+						.addGroup(layout.createSequentialGroup()
 								.addContainerGap()
-								.addGroup(
-										layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-												.addGroup(
-														layout.createSequentialGroup()
-																.addComponent(backToMMButton,
-																		GroupLayout.PREFERRED_SIZE, 160,
-																		GroupLayout.PREFERRED_SIZE)
-																.addPreferredGap(
-																		LayoutStyle.ComponentPlacement.RELATED,
-																		63, Short.MAX_VALUE)
-																.addComponent(createTableButton,
-																		GroupLayout.PREFERRED_SIZE, 142,
-																		GroupLayout.PREFERRED_SIZE))
-												.addGroup(
-														layout.createSequentialGroup()
-																.addGroup(
-																		layout.createParallelGroup(
-																				GroupLayout.Alignment.LEADING)
-																				.addComponent(
-																						usernameLabel,
-																						GroupLayout.PREFERRED_SIZE,
-																						66,
-																						GroupLayout.PREFERRED_SIZE)
-																				.addComponent(
-																						sizeLabel,
-																						GroupLayout.PREFERRED_SIZE,
-																						66,
-																						GroupLayout.PREFERRED_SIZE))
-																.addPreferredGap(
-																		LayoutStyle.ComponentPlacement.UNRELATED)
-																.addGroup(
-																		layout.createParallelGroup(
-																				GroupLayout.Alignment.LEADING)
-																				.addComponent(
-																						sizeSlider,
-																						GroupLayout.PREFERRED_SIZE,
-																						0, Short.MAX_VALUE)
-																				.addComponent(
-																						theFieldInWhichYouInputYourUsername))))
-								.addContainerGap()));
-		layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(
-				layout.createSequentialGroup()
-						.addContainerGap()
-						.addGroup(
-								layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-										.addComponent(theFieldInWhichYouInputYourUsername,
-												GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
-										.addComponent(usernameLabel, GroupLayout.DEFAULT_SIZE,
-												GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-						.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-						.addGroup(
-								layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-										.addComponent(sizeLabel, GroupLayout.PREFERRED_SIZE, 25,
-												GroupLayout.PREFERRED_SIZE)
-										.addComponent(sizeSlider, GroupLayout.PREFERRED_SIZE,
-												GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addGap(18, 18, 18)
-						.addGroup(
-								layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-										.addComponent(backToMMButton, GroupLayout.DEFAULT_SIZE,
-												GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-										.addComponent(createTableButton, GroupLayout.DEFAULT_SIZE,
-												GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-						.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
+								.addGroup(layout.createParallelGroup(Alignment.LEADING)
+										.addComponent(label, GroupLayout.PREFERRED_SIZE, 66, GroupLayout.PREFERRED_SIZE)
+										.addComponent(sizeLabel)
+										.addComponent(usernameLabel, GroupLayout.PREFERRED_SIZE, 66, GroupLayout.PREFERRED_SIZE))
+								.addGap(18)
+								.addGroup(layout.createParallelGroup(Alignment.LEADING)
+										.addGroup(layout.createSequentialGroup()
+												.addComponent(theFieldInWhichYouInputYourUsername, GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
+												.addPreferredGap(ComponentPlacement.RELATED))
+										.addComponent(textField, GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE)
+										.addComponent(spinner, GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE))
+								.addGap(84))
+						.addGroup(Alignment.TRAILING, layout.createSequentialGroup()
+								.addGap(39)
+								.addGroup(layout.createParallelGroup(Alignment.TRAILING, false)
+										.addComponent(createTableButton, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+										.addComponent(backToMMButton, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+								.addGap(110))
+		);
+		layout.setVerticalGroup(
+				layout.createParallelGroup(Alignment.LEADING)
+						.addGroup(layout.createSequentialGroup()
+								.addContainerGap()
+								.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+										.addComponent(usernameLabel)
+										.addComponent(theFieldInWhichYouInputYourUsername, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+								.addGap(11)
+								.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+										.addComponent(label, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
+										.addComponent(spinner, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+								.addPreferredGap(ComponentPlacement.UNRELATED)
+								.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+										.addComponent(sizeLabel, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
+										.addComponent(textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+								.addGap(31)
+								.addComponent(createTableButton)
+								.addGap(18)
+								.addComponent(backToMMButton)
+								.addGap(24))
+		);
+		getContentPane().setLayout(layout);
 
 		pack();
 		setLocationRelativeTo(null);
 	}
 
-	private void backToMMButtonActionPerformed(java.awt.event.ActionEvent evt) {
+	private void backToMMButtonActionPerformed( java.awt.event.ActionEvent evt ) {
 
 		System.out.println("Going back to main menu from TheFrameInWhichYouCreateANewTable");
 		MainMenu.run();
@@ -155,28 +146,28 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 
 	}
 
-	private void createTableButtonActionPerformed(java.awt.event.ActionEvent evt) {
+	private void createTableButtonActionPerformed( java.awt.event.ActionEvent evt ) {
 
-		boardSize = sizeSlider.getValue();
+		boardSize = (int) spinner.getValue();
 		String ip = theIpField.getText();
 		username = theFieldInWhichYouInputYourUsername.getText();
+		username = username.trim();
 
-		if (username.length() < 11) {
-			if (username.length() < 2)
+		if ( username.length() < 11 ) {
+			if ( username.length() < 2 )
 				JOptionPane.showMessageDialog(this, "The username must be at least 2 characters long.");
 			else {
-				username = username.trim();
+
 				System.out.println("The birth of a new table begins now.");
 				System.out.println("Should be establishing connection with server now.");
 
 				//and sending to the server boardSize, and username of host
 				//and an ip address?
-				int gameID = 1000;
-				Game game = new Game(username, boardSize, ip,gameID);
-				TableGUI table = new TableGUI(username, boardSize, game);
+				Board board = new Board(boardSize, username);
+				TableGUI table = new TableGUI(username, boardSize, board);
 				try {
-					Client hostConnection = new Client(true,DEFAULT_IP_ADDRESS,DEFAULT_PORT,username,boardSize);//starting server connection as host (new lobby)
-				} catch (IOException e) {
+					Client hostConnection = new Client(true, DEFAULT_IP_ADDRESS, DEFAULT_PORT, username, boardSize);//starting server connection as host (new lobby)
+				} catch ( IOException e ) {
 					e.printStackTrace();
 				}
 
@@ -198,22 +189,22 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 		 * /tutorial/uiswing/lookandfeel/plaf.html
 		 */
 		try {
-			for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-				if ("Nimbus".equals(info.getName())) {
+			for ( UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels() ) {
+				if ( "Nimbus".equals(info.getName()) ) {
 					UIManager.setLookAndFeel(info.getClassName());
 					break;
 				}
 			}
-		} catch (ClassNotFoundException ex) {
+		} catch ( ClassNotFoundException ex ) {
 			java.util.logging.Logger.getLogger(TheFrameInWhichYouCreateANewTable.class.getName()).log(
 					java.util.logging.Level.SEVERE, null, ex);
-		} catch (InstantiationException ex) {
+		} catch ( InstantiationException ex ) {
 			java.util.logging.Logger.getLogger(TheFrameInWhichYouCreateANewTable.class.getName()).log(
 					java.util.logging.Level.SEVERE, null, ex);
-		} catch (IllegalAccessException ex) {
+		} catch ( IllegalAccessException ex ) {
 			java.util.logging.Logger.getLogger(TheFrameInWhichYouCreateANewTable.class.getName()).log(
 					java.util.logging.Level.SEVERE, null, ex);
-		} catch (UnsupportedLookAndFeelException ex) {
+		} catch ( UnsupportedLookAndFeelException ex ) {
 			java.util.logging.Logger.getLogger(TheFrameInWhichYouCreateANewTable.class.getName()).log(
 					java.util.logging.Level.SEVERE, null, ex);
 		}
@@ -226,13 +217,13 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 		});
 	}
 
-	// Variables declaration  also needs ip
 	private JTextField theIpField = new JTextField();
 	private JButton createTableButton;
 	private JButton backToMMButton;
 	private JLabel sizeLabel;
-	private JSlider sizeSlider;
 	private JTextField theFieldInWhichYouInputYourUsername;
 	private JLabel usernameLabel;
-	// End of variables declaration
+	private JLabel label;
+	private JTextField textField;
+	private JSpinner spinner;
 }

@@ -1,117 +1,118 @@
 package saperskaMustard;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 
-public class Board implements Serializable{
+public class Board {
 
-	Square[][] squares;
+	//Board belongs to the client, stores all the necessary information about the board state, the players in the lobby, whose player turn it currently is etc.
+//	also recieves information from the server about which squares have been clicked and which not
+// also has all the methods necessary for setting up the board (i. e. the filling all the empty squares with numbers)
+
+	SquareButton[][] squares;
 	public int numberOfMines = 0;
-	private boolean firstClick = false; 
 	int boardSize;
-	Player[] players;
+	ArrayList<String> players = new ArrayList<>();
 	public String usernameOfHost;
 	public boolean gameOver = false;
-	public boolean gameStarted = false;
-
-
-	public Board(int boardSize, String usernameOfHost) {
+	public String currentPlayer;
+	String clientUsername;
+	public TableGUI gui;
+	
+	
+	public Board( int boardSize, String usernameOfHost ) {
 		this.boardSize = boardSize;
 		this.usernameOfHost = usernameOfHost;
-		squares = new Square[boardSize][boardSize];
-		numberOfMines = (int) (Math.pow(boardSize, 2) * 0.18);
-		
-		
+		squares = new SquareButton[boardSize][boardSize];
+		numberOfMines = (int) ( Math.pow(boardSize, 2) * 0.18 );
+		currentPlayer = usernameOfHost;
+
 	}
 	
-	public void firstClick(int i, int j){
-		
-		char[] tempArrayThatHelpsSetUpBombs = new char[(int) Math.pow(boardSize, 2)];
-		char[][] anotherTempArray = new char[boardSize][boardSize];
-		Arrays.fill(tempArrayThatHelpsSetUpBombs, '-');
-		System.out.println("SettingUpBombs...");
-		setUpBombs(tempArrayThatHelpsSetUpBombs, anotherTempArray, i , j);
-		setUpNumbers(anotherTempArray);
-		createSquares(anotherTempArray);
-		
-		//send to client squares[i][j]
-		
-	}
-	
-
-	private void setUpNumbers(char[][] anotherTempArray) {
-
-		for (int i = 0; i < anotherTempArray.length; i++) {
-			for (int j = 0; j < anotherTempArray.length; j++) {
-				if (anotherTempArray[i][j] != 'm') {
-					ArrayList<Character> neighbours = getNeighbours(i, j, anotherTempArray);
-					int mineCounter = 0;
-					for (char c : neighbours)
-						if (c == 'm') mineCounter++;
-					anotherTempArray[i][j] = (char) (mineCounter + '0');
-				}
-			}
-		}
-	}
-
-	private void setUpBombs(char[] tempArrayThatHelpsSetUpBombs, char[][] anotherTempArray, int i2, int j2) {
-
-		for (int i = 0; i < numberOfMines; i++) {
-			int index;
-			do {
-				System.out.println("randomizing an index for a mine now");
-				index = (int) (Math.random() * tempArrayThatHelpsSetUpBombs.length);
-			} while (tempArrayThatHelpsSetUpBombs[index] == 'm' &&   (j2 != index%boardSize && i2!= index/boardSize)   );
-			tempArrayThatHelpsSetUpBombs[index] = 'm';
-		}
-		int i = 0;
-		for (int j = 0; j < tempArrayThatHelpsSetUpBombs.length; j++) {
-			if (j % boardSize == 0 && j != 0) i++;
-			if (tempArrayThatHelpsSetUpBombs[j] == 'm') anotherTempArray[i][j % boardSize] = 'm';
-		}
-
-	}
-
-	private ArrayList<Character> getNeighbours(int i, int j, char[][] anotherTempArray) {
+	private ArrayList<Character> getNeighbours( int i, int j ) {
 
 		ArrayList<Character> neighbours = new ArrayList<>();
 
 		i++;
-		if (squareExists(i, j)) neighbours.add(anotherTempArray[i][j]);
+		if ( squareExists(i, j) ) neighbours.add(squares[i][j].content);
 		j++;
-		if (squareExists(i, j)) neighbours.add(anotherTempArray[i][j]);
+		if ( squareExists(i, j) ) neighbours.add(squares[i][j].content);
 		i--;
-		if (squareExists(i, j)) neighbours.add(anotherTempArray[i][j]);
+		if ( squareExists(i, j) ) neighbours.add(squares[i][j].content);
 		i--;
-		if (squareExists(i, j)) neighbours.add(anotherTempArray[i][j]);
+		if ( squareExists(i, j) ) neighbours.add(squares[i][j].content);
 		j--;
-		if (squareExists(i, j)) neighbours.add(anotherTempArray[i][j]);
+		if ( squareExists(i, j) ) neighbours.add(squares[i][j].content);
 		j--;
-		if (squareExists(i, j)) neighbours.add(anotherTempArray[i][j]);
+		if ( squareExists(i, j) ) neighbours.add(squares[i][j].content);
 		i++;
-		if (squareExists(i, j)) neighbours.add(anotherTempArray[i][j]);
+		if ( squareExists(i, j) ) neighbours.add(squares[i][j].content);
 		i++;
-		if (squareExists(i, j)) neighbours.add(anotherTempArray[i][j]);
+		if ( squareExists(i, j) ) neighbours.add(squares[i][j].content);
 
 		return neighbours;
 	}
 
-	public boolean squareExists(int i, int j) {
-		if (i < 0 || j < 0) return false;
-		if (i >= boardSize || j >= boardSize) return false;
+	public boolean squareExists( int i, int j ) {
+		if ( i < 0 || j < 0 ) return false;
+		if ( i >= boardSize || j >= boardSize ) return false;
 		return true;
 	}
 
-	private void createSquares(char[][] arr) {
-		for (int i = 0; i < squares.length; i++) {
-			for (int j = 0; j < squares.length; j++) {
-				Square newSquare = new Square(arr[i][j], i, j, this);
-				squares[i][j] = newSquare;
+	public void setUpSquares( boolean[][] mines ) {
+
+		for ( int i = 0; i < boardSize; i++ ) {
+			for ( int j = 0; j < boardSize; j++ ) {
+				if ( !mines[i][j] ) {
+					ArrayList<Character> neighbours = getNeighbours(i, j);
+					int mineCounter = 0;
+					for ( char c : neighbours )
+						if ( c == 'm' ) mineCounter++;
+					if(mineCounter == 0) squares[i][j].content = ' ';
+					else squares[i][j].content = (char) ( mineCounter + '0' );
+				}else squares[i][j].content = 'm';
 			}
 		}
 
 	}
+	
+	public  void gameStart() {
+		for (SquareButton sB : SquareButton.ALL_SQUAREBUTTONS)
+			sB.setEnabled(true);
+	}
+
+	public  void notYourTurn(){
+		for (SquareButton sB : SquareButton.ALL_SQUAREBUTTONS)
+			sB.setEnabled(false);
+	}
+
+	public  void yourTurn(){
+		for (SquareButton sB : SquareButton.ALL_SQUAREBUTTONS)
+			sB.setEnabled(true);
+	}
+
+	public void click( int i, int j ) {     //this method gets called by a clicked button.
+		//it sends information to the server about coordinates of a button that was clicked.
+		//TODO dear Filip, from here send info to the server about i, j
+
+	}
+
+	public void receiveClick(int i, int j ){    //this method gets called somewhere from the Client class
+		//after receiving information from the server about a clicked square, we update our local Board.
+
+		squares[i][j].reveal();
+		if(!gameOver){
+
+			int currentPlayerIndex = players.indexOf(currentPlayer);
+			currentPlayerIndex++;
+			if(currentPlayerIndex >= players.size()) currentPlayerIndex = 0;
+
+			currentPlayer = players.get(currentPlayerIndex );
+			if(currentPlayer.equals(clientUsername)) yourTurn();
+			else notYourTurn();
+
+		}
 
 
+
+	}
 }

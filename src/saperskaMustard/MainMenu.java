@@ -6,136 +6,137 @@ import javax.swing.*;
 
 public class MainMenu extends JFrame {
 
-    public MainMenu() {
-        initComponents();
-    }
+	//the GUI of the Main Menu. the further Panels are opened from here.
+//	one can also find out who the creators of this application are
 
-    private void initComponents() {
+	public MainMenu() {
+		initComponents();
+	}
 
-        menuExitGameButton = new JButton();
-        menuJoinRandGameButton = new JButton();
-        menuNewGameButton = new JButton();
-        greetings = new JLabel();
-        bragLabel = new JLabel();
+	private void initComponents() {
 
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Saperska Mustard");
-        setResizable(false);
+		menuExitGameButton = new JButton();
+		menuJoinRandGameButton = new JButton();
+		menuNewGameButton = new JButton();
+		greetings = new JLabel();
+		bragLabel = new JLabel();
 
-        menuExitGameButton.setFont(new java.awt.Font("Tahoma", 0, 14)); 
-        menuExitGameButton.setText("Exit");
-        menuExitGameButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuExitGameButtonActionPerformed(evt);
-            }
-        });
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		setTitle("Saperska Mustard");
+		setResizable(false);
 
-        menuJoinRandGameButton.setFont(new java.awt.Font("Tahoma", 0, 14)); 
-        menuJoinRandGameButton.setText("Join random game");
-        menuJoinRandGameButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuJoinRandGameButtonActionPerformed(evt);
-            }
-        });
+		menuExitGameButton.setFont(new java.awt.Font("Tahoma", 0, 14));
+		menuExitGameButton.setText("Exit");
+		menuExitGameButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed( java.awt.event.ActionEvent evt ) {
+				menuExitGameButtonActionPerformed(evt);
+			}
+		});
 
-        menuNewGameButton.setFont(new java.awt.Font("Tahoma", 0, 14)); 
-        menuNewGameButton.setText("New game");
-        menuNewGameButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuNewGameButtonActionPerformed(evt);
-            }
-        });
+		menuJoinRandGameButton.setFont(new java.awt.Font("Tahoma", 0, 14));
+		menuJoinRandGameButton.setText("Join random game");
+		menuJoinRandGameButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed( java.awt.event.ActionEvent evt ) {
+				menuJoinRandGameButtonActionPerformed(evt);
+			}
+		});
 
-        greetings.setFont(new java.awt.Font("Tahoma", 1, 12)); 
-        greetings.setText("Welcome to Saperska Mustard!");
+		menuNewGameButton.setFont(new java.awt.Font("Tahoma", 0, 14));
+		menuNewGameButton.setText("New game");
+		menuNewGameButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed( java.awt.event.ActionEvent evt ) {
+				menuNewGameButtonActionPerformed(evt);
+			}
+		});
 
-        bragLabel.setFont(new java.awt.Font("Tahoma", 0, 10)); 
-        bragLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        bragLabel.setText("by Filip Matracki and Ksawery Jasieñski, 2016");
+		greetings.setFont(new java.awt.Font("Tahoma", 1, 12));
+		greetings.setText("Welcome to Saperska Mustard!");
 
-        GroupLayout layout = new GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                    .addComponent(greetings, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(menuNewGameButton, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(menuJoinRandGameButton, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(menuExitGameButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 28, Short.MAX_VALUE)
-                        .addComponent(bragLabel)))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(greetings, GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
-                .addGap(4, 4, 4)
-                .addComponent(menuNewGameButton, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(menuJoinRandGameButton, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(menuExitGameButton, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)
-                .addGap(14, 14, 14)
-                .addComponent(bragLabel))
-        );
+		bragLabel.setFont(new java.awt.Font("Tahoma", 0, 10));
+		bragLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		bragLabel.setText("by Filip Matracki and Ksawery Jasienski, 2016");
 
-        pack();
-        setLocationRelativeTo(null);
-    }// </editor-fold>                        
+		GroupLayout layout = new GroupLayout(getContentPane());
+		getContentPane().setLayout(layout);
+		layout.setHorizontalGroup(
+				layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+						.addGroup(layout.createSequentialGroup()
+								.addContainerGap()
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+										.addComponent(greetings, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+										.addComponent(menuNewGameButton, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+										.addComponent(menuJoinRandGameButton, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+										.addComponent(menuExitGameButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+										.addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+												.addGap(0, 28, Short.MAX_VALUE)
+												.addComponent(bragLabel)))
+								.addContainerGap())
+		);
+		layout.setVerticalGroup(
+				layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+						.addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+								.addContainerGap()
+								.addComponent(greetings, GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+								.addGap(4, 4, 4)
+								.addComponent(menuNewGameButton, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)
+								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+								.addComponent(menuJoinRandGameButton, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)
+								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+								.addComponent(menuExitGameButton, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)
+								.addGap(14, 14, 14)
+								.addComponent(bragLabel))
+		);
 
-    private void menuExitGameButtonActionPerformed(java.awt.event.ActionEvent evt) {                                                   
+		pack();
+		setLocationRelativeTo(null);
+	}
 
-    	System.exit(0);
-    	
-    }                                                  
+	private void menuExitGameButtonActionPerformed( java.awt.event.ActionEvent evt ) {
 
-    private void menuJoinRandGameButtonActionPerformed(java.awt.event.ActionEvent evt) {                                                       
-        menuJoinRandGameButton.setText("<html>this does not do anything yet :(</html>");
-    }                                                      
+		System.exit(0);
 
-    private void menuNewGameButtonActionPerformed(java.awt.event.ActionEvent evt) {                                                  
-        
-        TheFrameInWhichYouCreateANewTable next = new TheFrameInWhichYouCreateANewTable();
-        next.start();
-        this.dispose();
-        
-    }                                                 
+	}
 
-    public static void run() {
-        try {
-            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
+	private void menuJoinRandGameButtonActionPerformed( java.awt.event.ActionEvent evt ) {
+		menuJoinRandGameButton.setText("<html>this does not do anything yet :(</html>");
+	}
 
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new MainMenu().setVisible(true);
-            }
-        });
-    }
+	private void menuNewGameButtonActionPerformed( java.awt.event.ActionEvent evt ) {
 
-    // Variables declaration - do not modify                     
-    private JLabel bragLabel;
-    private JLabel greetings;
-    private JButton menuExitGameButton;
-    private JButton menuJoinRandGameButton;
-    private JButton menuNewGameButton;
-    // End of variables declaration                   
+		TheFrameInWhichYouCreateANewTable next = new TheFrameInWhichYouCreateANewTable();
+		next.start();
+		this.dispose();
+
+	}
+
+	public static void run() {
+		try {
+			for ( UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels() ) {
+				if ( "Nimbus".equals(info.getName()) ) {
+					UIManager.setLookAndFeel(info.getClassName());
+					break;
+				}
+			}
+		} catch ( ClassNotFoundException ex ) {
+			java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+		} catch ( InstantiationException ex ) {
+			java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+		} catch ( IllegalAccessException ex ) {
+			java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+		} catch ( UnsupportedLookAndFeelException ex ) {
+			java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+		}
+
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				new MainMenu().setVisible(true);
+			}
+		});
+	}
+
+	private JLabel bragLabel;
+	private JLabel greetings;
+	private JButton menuExitGameButton;
+	private JButton menuJoinRandGameButton;
+	private JButton menuNewGameButton;
 }

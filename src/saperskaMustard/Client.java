@@ -1,15 +1,18 @@
 package saperskaMustard;
-import java.io.*;
-import java.net.*;
-import java.util.concurrent.*;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Client {
 
     boolean isHost;
     ObjectInputStream inputFromServer;
     ObjectOutputStream outputToServer;
-    private String username;
-    private int boardSize;
+    String username;
+    int boardSize;
 
     private ConnectionToServer server;
     private LinkedBlockingQueue<Object> objectsReceivedFromServer;
@@ -23,6 +26,14 @@ public class Client {
         socket = new Socket(IPAddress, port);
         objectsReceivedFromServer = new LinkedBlockingQueue<Object>();
         server = new ConnectionToServer(socket);
+
+	    if(isHost) {
+		    //  DEAR FILIP
+			//here, the Client sends a request to the Server: please create a new Game, using the constructor most likely
+		    //so plx code this :)
+
+	    }
+
 
         Thread handleObjectsFromServer = new Thread() {
             public void run(){
