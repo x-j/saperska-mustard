@@ -25,6 +25,7 @@ public class SquareButton extends JButton {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 
+			System.out.println("A button at "+i+", "+j+" was pressed by "+board.clientUsername);
 			board.click(i, j);  //very simple - we send message to the Board that we clicked a square
 //              the Board will then send this information to the server.
 		}
@@ -33,9 +34,11 @@ public class SquareButton extends JButton {
 
 
 
-	public SquareButton( Board board) {
+	public SquareButton(final Board board, int i, int j) {
 
 		this.board = board;
+		this.i = i;
+		this.j = j;
 		this.setFont(new Font("Tahoma", Font.BOLD, 13));
 		this.setPreferredSize(new Dimension(20, 20));
 		this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
@@ -53,8 +56,6 @@ public class SquareButton extends JButton {
 
 			@Override
 			public void mousePressed( MouseEvent e ) {
-				// TODO Auto-generated method stub
-
 			}
 
 			@Override
@@ -71,15 +72,19 @@ public class SquareButton extends JButton {
 
 			@Override
 			public void mouseClicked( MouseEvent e ) {
-				if ( SwingUtilities.isRightMouseButton(e) ) {
+				if ( SwingUtilities.isRightMouseButton(e) && board.hasBegun ) {
 					if ( flagged ) {
-						setText("");
-						board.gui.minesLeftLabel.setText(( board.gui.counterOfMinesLeft-- ) + "");
+						flagged = false;
+						((SquareButton) e.getSource()) .setText("");
+						((SquareButton) e.getSource()) .setEnabled(true);
+						board.gui.minesLeftLabel.setText(( ++board.gui.counterOfMinesLeft ) + " mines left.");
 
 					} else {
 						if ( board.gui.counterOfMinesLeft != 0 ) {
-							setText("F");
-							board.gui.minesLeftLabel.setText(( board.gui.counterOfMinesLeft-- ) + "");
+							flagged = true;
+							((SquareButton) e.getSource()) .setEnabled(false);
+							((SquareButton) e.getSource()) .setText("F");
+							board.gui.minesLeftLabel.setText(( --board.gui.counterOfMinesLeft ) + " mines left.");
 						}
 					}
 				}
@@ -93,7 +98,7 @@ public class SquareButton extends JButton {
 		this.setEnabled(false);
 		this.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		this.setText(""+content);
-		if(content == 'm' && gameOver == false){
+		if(content == 'm' && !gameOver){
 			gameOver = true;
 			board.gameOver = true;
 			JOptionPane.showMessageDialog(this.getParent(), "Lol, you lost XD");
@@ -101,37 +106,6 @@ public class SquareButton extends JButton {
 				sb.setEnabled(false);
 			}
 		}
-	}
-
-	private ArrayList<SquareButton> getNeighbours() {
-		ArrayList<SquareButton> list = new ArrayList<>();
-
-		int i2 = i;
-		int j2 = j;
-		i2++;
-		if (board.squareExists(i2, j2)) list.add(getSquareAt(i2,j2));
-		j2++;
-		if (board.squareExists(i2, j2)) list.add(getSquareAt(i2,j2));
-		i2--;
-		if (board.squareExists(i2, j2)) list.add(getSquareAt(i2,j2));
-		i2--;
-		if (board.squareExists(i2, j2)) list.add(getSquareAt(i2,j2));
-		j2--;
-		if (board.squareExists(i2, j2)) list.add(getSquareAt(i2,j2));
-		j2--;
-		if (board.squareExists(i2, j2)) list.add(getSquareAt(i2,j2));
-		i2++;
-		if (board.squareExists(i2, j2)) list.add(getSquareAt(i2,j2));
-		i2++;
-		if (board.squareExists(i2, j2)) list.add(getSquareAt(i2,j2));
-
-		return list;
-	}
-
-	private SquareButton getSquareAt(int i2, int j2) {
-		for (SquareButton square : ALL_SQUAREBUTTONS)
-			if ( square.i == i2 && square.j == j2 ) return square;
-		return null;
 	}
 
 }

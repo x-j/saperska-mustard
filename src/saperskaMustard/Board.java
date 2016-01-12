@@ -17,16 +17,16 @@ public class Board {
 	public String currentPlayer;
 	String clientUsername;
 	public TableGUI gui;
-	
-	
-	public Board( int boardSize, String usernameOfHost ) {
+    public boolean hasBegun = false;
+
+    public Board( int boardSize, String usernameOfHost, String clientUsername ) {
 		this.boardSize = boardSize;
 		this.usernameOfHost = usernameOfHost;
-		squares = new SquareButton[boardSize][boardSize];
 		numberOfMines = (int) ( Math.pow(boardSize, 2) * 0.18 );
-		currentPlayer = usernameOfHost;
-
-	}
+        currentPlayer = usernameOfHost;
+        this.clientUsername = clientUsername;
+        squares = new SquareButton[boardSize][boardSize];
+    }
 	
 	private ArrayList<Character> getNeighbours( int i, int j ) {
 
@@ -76,6 +76,7 @@ public class Board {
 	}
 	
 	public  void gameStart() {
+        hasBegun= true;
 		for (SquareButton sB : SquareButton.ALL_SQUAREBUTTONS)
 			sB.setEnabled(true);
 	}
@@ -97,7 +98,7 @@ public class Board {
 	}
 
 	public void receiveClick(int i, int j ){    //this method gets called somewhere from the Client class
-		//after receiving information from the server about a clicked square, we update our local Board.
+		//after receiving information from the server about a clicked square, we update our local Board
 
 		squares[i][j].reveal();
 		if(!gameOver){

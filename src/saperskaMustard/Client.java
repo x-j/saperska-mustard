@@ -29,10 +29,14 @@ public class Client {
 
 	    if(isHost) {
 		    //  DEAR FILIP
-			//here, the Client sends a request to the Server: please create a new Game, using the constructor most likely
+			//TODO here, the Client sends a request to the Server: please create a new Game, using the constructor most likely
 		    //so plx code this :)
 
-	    }
+	    }else{
+
+            //TODO otherwise, send a request to the Server: please tell me how the Game looks like so I can create myself a Board
+
+        }
 
 
         Thread handleObjectsFromServer = new Thread() {
@@ -47,6 +51,11 @@ public class Client {
                 }
             }
         };
+
+
+        //TODO if we recieved a two dimensional array of booleans, activate the setUpSquares method in Board.
+        //TODO if we received coordinates, activate the receiveClick method in Board.
+        //TODO if we receive a String then add it to the Chatbox
 
         handleObjectsFromServer.setDaemon(true);
         handleObjectsFromServer.start();

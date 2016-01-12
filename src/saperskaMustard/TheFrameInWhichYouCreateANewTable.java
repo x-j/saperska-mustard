@@ -163,7 +163,7 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 
 				//and sending to the server boardSize, and username of host
 				//and an ip address?
-				Board board = new Board(boardSize, username);
+				Board board = new Board(boardSize, username, username);
 				TableGUI table = new TableGUI(username, boardSize, board);
 				try {
 					Client hostConnection = new Client(true, DEFAULT_IP_ADDRESS, DEFAULT_PORT, username, boardSize);//starting server connection as host (new lobby)

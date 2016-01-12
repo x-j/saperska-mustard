@@ -1,6 +1,7 @@
 package saperskaMustard;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -30,6 +31,7 @@ public class TableGUI extends JFrame {
 		usernameOfHost = board.usernameOfHost;
 		this.clientUsername = username;
 		this.boardSize = boardSize;
+		counterOfMinesLeft = board.numberOfMines;
 
 		setTitle("Saperska Mustard - " + usernameOfHost + "'s room");
 		setVisible(true);
@@ -90,7 +92,7 @@ public class TableGUI extends JFrame {
 
 		boardPanel.setPreferredSize(new java.awt.Dimension(boardSize * 25, boardSize * 25));
 
-		boardPanel.setBorder(BorderFactory.createLineBorder(new java.awt.Color(33, 49, 103)));
+		boardPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		boardPanel.setForeground(new java.awt.Color(0, 0, 5));
 
 		GridLayout boardPanelLayout = new GridLayout();
@@ -104,7 +106,7 @@ public class TableGUI extends JFrame {
 		statusIcon.setText("status");
 
 		minesLeftLabel.setFont(new java.awt.Font("Tahoma", 3, 12)); // NOI18N
-		minesLeftLabel.setText("<html>"+board.numberOfMines+" mines left</html>");
+		minesLeftLabel.setText("<html>"+counterOfMinesLeft+" mines left</html>");
 
 		chatboxArea.setColumns(boardSize);
 		chatboxArea.setRows(boardSize);
@@ -321,7 +323,7 @@ public class TableGUI extends JFrame {
 
 		for ( int i = 0; i < boardSize; i++ ) {
 			for ( int j = 0; j < boardSize; j++ ) {
-				board.squares[i][j] = new SquareButton(board);
+				board.squares[i][j] = new SquareButton(board, i ,j);
 				boardPanel.add(board.squares[i][j]);
 			}
 		}

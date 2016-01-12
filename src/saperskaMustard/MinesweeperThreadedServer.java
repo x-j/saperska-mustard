@@ -18,13 +18,13 @@ public class MinesweeperThreadedServer {
     private ArrayList<ConnectionToClient> clientList;
     private LinkedBlockingQueue<Object> receivedObjects;
     private ServerSocket serverSocket;
-
+    ServerGUI sGUI;
 
     public MinesweeperThreadedServer(int port) throws IOException {
         clientList = new ArrayList<ConnectionToClient>();
         receivedObjects = new LinkedBlockingQueue<Object>();
         serverSocket = new ServerSocket(port);
-        ServerGUI sGUI = new ServerGUI(this);
+        sGUI = new ServerGUI(this);
         sGUI.annoy();
 
         Thread waitingForClientsToConnect = new Thread(){
