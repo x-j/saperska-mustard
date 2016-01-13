@@ -98,7 +98,11 @@ public class MainMenu extends JFrame {
 	}
 
 	private void menuJoinRandGameButtonActionPerformed( java.awt.event.ActionEvent evt ) {
-		menuJoinRandGameButton.setText("<html>this does not do anything yet :(</html>");
+
+		TheFrameInWhichYouJoinARandomGame next = new TheFrameInWhichYouJoinARandomGame();
+		next.start();
+		this.dispose();
+
 	}
 
 	private void menuNewGameButtonActionPerformed( java.awt.event.ActionEvent evt ) {

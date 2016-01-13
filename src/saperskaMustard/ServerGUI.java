@@ -17,6 +17,8 @@ public class ServerGUI extends javax.swing.JFrame {
 		initComponents();
 		actionListeners();
 		setVisible(true);
+		setResizable(false);
+		setTitle("Saperska Mustard server");
 	}
 	
 	private void actionListeners() {
@@ -106,6 +108,8 @@ public class ServerGUI extends javax.swing.JFrame {
 								.addContainerGap())
 		);
 
+		setLocationRelativeTo(null);
+
 		pack();
 	}// </editor-fold>
 
@@ -131,10 +135,6 @@ public class ServerGUI extends javax.swing.JFrame {
 			java.util.logging.Logger.getLogger(ServerGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
 		}
 
-		java.awt.EventQueue.invokeLater(new Runnable() {
-			public void run() {
-			}
-		});
 	}
 
 	private javax.swing.JButton jButton1;

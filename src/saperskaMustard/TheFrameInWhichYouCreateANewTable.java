@@ -15,14 +15,12 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 	String username;
 	int boardSize;
 	public final static int DEFAULT_PORT = 5000;
-	final private static int DEFAULT_SIZE = 10;
 	final private static String DEFAULT_USERNAME_FIELD_TEXT = "TEST";
 	public static String DEFAULT_IP_ADDRESS;
 
 
 	public TheFrameInWhichYouCreateANewTable() {
-		setType(Type.UTILITY);
-		setPreferredSize(new Dimension(230, 250));
+		setPreferredSize(new Dimension(230, 260));
 		setResizable(false);
 		try {
 			DEFAULT_IP_ADDRESS = InetAddress.getLocalHost().toString();
@@ -39,7 +37,7 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 
 		theFieldInWhichYouInputYourUsername = new JTextField();
 		usernameLabel = new JLabel();
-		sizeLabel = new JLabel();
+		ipLabel = new JLabel();
 		createTableButton = new JButton();
 		backToMMButton = new JButton();
 
@@ -54,8 +52,8 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 		usernameLabel.setFont(new java.awt.Font("Tahoma", 1, 12));
 		usernameLabel.setText("Username:");
 
-		sizeLabel.setFont(new java.awt.Font("Tahoma", 1, 12));
-		sizeLabel.setText("IP of server:");
+		ipLabel.setFont(new java.awt.Font("Tahoma", 1, 12));
+		ipLabel.setText("IP of server:");
 
 		createTableButton.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 		createTableButton.setText("Create the table");
@@ -77,9 +75,9 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 			}
 		});
 
-		label = new JLabel();
-		label.setText("Size:");
-		label.setFont(new Font("Tahoma", Font.BOLD, 12));
+		sizeLabel = new JLabel();
+		sizeLabel.setText("Size:");
+		sizeLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		textField = new JTextField(DEFAULT_IP_ADDRESS);
 		textField.setToolTipText("enter the IP of the server here");
@@ -93,8 +91,8 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 						.addGroup(layout.createSequentialGroup()
 								.addContainerGap()
 								.addGroup(layout.createParallelGroup(Alignment.LEADING)
-										.addComponent(label, GroupLayout.PREFERRED_SIZE, 66, GroupLayout.PREFERRED_SIZE)
-										.addComponent(sizeLabel)
+										.addComponent(sizeLabel, GroupLayout.PREFERRED_SIZE, 66, GroupLayout.PREFERRED_SIZE)
+										.addComponent(ipLabel)
 										.addComponent(usernameLabel, GroupLayout.PREFERRED_SIZE, 66, GroupLayout.PREFERRED_SIZE))
 								.addGap(18)
 								.addGroup(layout.createParallelGroup(Alignment.LEADING)
@@ -120,17 +118,17 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 										.addComponent(theFieldInWhichYouInputYourUsername, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 								.addGap(11)
 								.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-										.addComponent(label, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
+										.addComponent(sizeLabel, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
 										.addComponent(spinner, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 								.addPreferredGap(ComponentPlacement.UNRELATED)
 								.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-										.addComponent(sizeLabel, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
+										.addComponent(ipLabel, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
 										.addComponent(textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 								.addGap(31)
 								.addComponent(createTableButton)
 								.addGap(18)
 								.addComponent(backToMMButton)
-								.addGap(24))
+								.addGap(50))
 		);
 		getContentPane().setLayout(layout);
 
@@ -166,7 +164,7 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 				Board board = new Board(boardSize, username, username);
 				TableGUI table = new TableGUI(username, boardSize, board);
 				try {
-					Client hostConnection = new Client(true, DEFAULT_IP_ADDRESS, DEFAULT_PORT, username, boardSize);//starting server connection as host (new lobby)
+					Client hostConnection = new Client(true, ip, DEFAULT_PORT, username, boardSize);//starting server connection as host (new lobby)
 				} catch ( IOException e ) {
 					e.printStackTrace();
 				}
@@ -220,10 +218,10 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 	private JTextField theIpField = new JTextField();
 	private JButton createTableButton;
 	private JButton backToMMButton;
-	private JLabel sizeLabel;
+	private JLabel ipLabel;
 	private JTextField theFieldInWhichYouInputYourUsername;
 	private JLabel usernameLabel;
-	private JLabel label;
+	private JLabel sizeLabel;
 	private JTextField textField;
 	private JSpinner spinner;
 }

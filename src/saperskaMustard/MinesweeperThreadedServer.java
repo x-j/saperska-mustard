@@ -14,7 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class MinesweeperThreadedServer {
     static final int PORT = 5000;//must be the same as the variable PORT in TheFrameInWhichYouCreateANewTable.java and where join random game button is
     public static int NUM_OF_CLIENTS = 0; //we can call MinesweeperThreadedServer.NUM_OF_CLIENTS in other classes to see how many clients are connected
-    public static ArrayList<Game> openGames = new ArrayList<>();    //when a new game lobby is created a random 4 digit game ID is created so we can distinguish between games in progress
+    public static ArrayList<Game> openGames = new ArrayList<>();    //when a new game lobby is created a NOT RANDOM 4 digit game ID is created so we can distinguish between games in progress
     private ArrayList<ConnectionToClient> clientList;
     private LinkedBlockingQueue<Object> receivedObjects;
     private ServerSocket serverSocket;
