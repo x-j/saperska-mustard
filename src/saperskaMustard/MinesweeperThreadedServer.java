@@ -1,9 +1,12 @@
 package saperskaMustard;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.concurrent.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by Filip Matracki on 1/7/2016.
@@ -11,16 +14,18 @@ import java.util.concurrent.*;
 public class MinesweeperThreadedServer {
     static final int PORT = 5000;//must be the same as the variable PORT in TheFrameInWhichYouCreateANewTable.java and where join random game button is
     public static int NUM_OF_CLIENTS = 0; //we can call MinesweeperThreadedServer.NUM_OF_CLIENTS in other classes to see how many clients are connected
-    public static ArrayList<Game> openGames = new ArrayList<>();    //when a new game lobby is created a random 4 digit game ID is created so we can distinguish between games in progress
+    public static ArrayList<Game> openGames = new ArrayList<>();    //when a new game lobby is created a NOT RANDOM 4 digit game ID is created so we can distinguish between games in progress
     private ArrayList<ConnectionToClient> clientList;
     private LinkedBlockingQueue<Object> receivedObjects;
     private ServerSocket serverSocket;
-
+    ServerGUI sGUI;
 
     public MinesweeperThreadedServer(int port) throws IOException {
         clientList = new ArrayList<ConnectionToClient>();
         receivedObjects = new LinkedBlockingQueue<Object>();
         serverSocket = new ServerSocket(port);
+        sGUI = new ServerGUI(this);
+        sGUI.annoy();
 
         Thread waitingForClientsToConnect = new Thread(){
           public void run(){
@@ -38,6 +43,10 @@ public class MinesweeperThreadedServer {
         };
         waitingForClientsToConnect.setDaemon(true);
         waitingForClientsToConnect.start();
+
+	    //TODO DEAR FILIP somewhere here we have to send the new user the information about the game (unless he's the host)
+//                  please handle that, we need to get the info from the class Game (boardSize, current players, username of host) and send it to the newly connected dude.
+
         Thread handleObjectsInQueue = new Thread(){
             public void run(){
                 while(true){
@@ -70,8 +79,8 @@ public class MinesweeperThreadedServer {
 
     }
 
-    private class ConnectionToClient{
-        ObjectInputStream inputFromClient;
+	private class ConnectionToClient{
+		ObjectInputStream inputFromClient;
         ObjectOutputStream outputToClient;
         Socket socket;
 
@@ -90,7 +99,8 @@ public class MinesweeperThreadedServer {
                     while(true){
                         try{
                             Object obj = inputFromClient.readObject();
-                            receivedObjects.put(obj);
+	                        System.out.println("An object was read from a client.");
+	                        receivedObjects.put(obj);
                         }
                         catch(IOException e){ e.printStackTrace(); }
                         catch (ClassNotFoundException e) {
