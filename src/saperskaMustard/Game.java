@@ -11,23 +11,23 @@ public class Game {
 	public String usernameOfHost;
 	int numberOfMines;
 	public int boardSize;
-	boolean firstClickHappened = false;
+	public boolean firstClickHappened = false;
 	String ipOfHost;
-	ArrayList<String> players = new ArrayList<>();
+	private ArrayList<String> players = new ArrayList<>();
 	public int gameID;
-	public static ArrayList<Game> ALL_GAMES = new ArrayList<>();
+	//public static ArrayList<Game> ALL_GAMES = new ArrayList<>(); /*number of games is already tracked by the server*/
 
 	boolean[][] mines;
 
-	public Game( String usernameOfHost, int boardSize, String ip ) {
-		this.usernameOfHost = usernameOfHost;
-		this.gameID = 0000 + ALL_GAMES.size();
+	public Game( GameInfo info) {
+		this.usernameOfHost = info.getUsername();
+		this.gameID = 0000 + MinesweeperThreadedServer.openGames.size(); //server already adds games to an array list, this is redundant
 		players.add(usernameOfHost);
 		numberOfMines = (int) ( Math.pow(boardSize, 2) * 0.18 );
-		this.boardSize = boardSize;
-		this.ipOfHost = ip;
+		this.boardSize = info.getBoardsize();
+		this.ipOfHost = info.getIpAddress();
 		mines = new boolean[boardSize][boardSize];
-		ALL_GAMES.add(this);
+
 	}
 
 	public void click( int i, int j ) {   //this method will be called from some outer class, ints i, j come from the user

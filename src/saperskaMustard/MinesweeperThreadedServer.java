@@ -44,8 +44,7 @@ public class MinesweeperThreadedServer {
         waitingForClientsToConnect.setDaemon(true);
         waitingForClientsToConnect.start();
 
-	    //TODO DEAR FILIP somewhere here we have to send the new user the information about the game (unless he's the host)
-//                  please handle that, we need to get the info from the class Game (boardSize, current players, username of host) and send it to the newly connected dude.
+
 
         Thread handleObjectsInQueue = new Thread(){
             public void run(){
@@ -59,6 +58,13 @@ public class MinesweeperThreadedServer {
                         if(nextObjectInQueue instanceof  String){
                             //We received a chat message
 
+                        }
+                        else if(nextObjectInQueue instanceof GameInfo){
+                            //We received a request to start a new game from a client
+                            GameInfo info =  ((GameInfo)nextObjectInQueue);
+                            Game newGame = new Game(info);
+                            openGames.add(newGame);
+                            System.out.println("w00t we received a request to host a game from a client and server successfully created game");
                         }
 
                     } catch (InterruptedException e) {
@@ -77,6 +83,14 @@ public class MinesweeperThreadedServer {
             e.printStackTrace();
         }
 
+    }
+    public void sendToOne(int index, Object message)throws IndexOutOfBoundsException {
+        clientList.get(index).write(message);
+    }
+
+    public void sendToAll(Object message){
+        for(ConnectionToClient client : clientList)
+            client.write(message);
     }
 
 	private class ConnectionToClient{
@@ -102,7 +116,9 @@ public class MinesweeperThreadedServer {
 	                        System.out.println("An object was read from a client.");
 	                        receivedObjects.put(obj);
                         }
-                        catch(IOException e){ e.printStackTrace(); }
+                        catch(IOException e){
+                            //ConnectionToClient.this.closeConnections();
+                            }
                         catch (ClassNotFoundException e) {
                             e.printStackTrace();
                         } catch (InterruptedException e) {
@@ -120,16 +136,24 @@ public class MinesweeperThreadedServer {
             try{
                 outputToClient.writeObject(obj);
             }
-            catch(IOException e){ e.printStackTrace(); }
-        }
-        public void sendToOne(int index, Object message)throws IndexOutOfBoundsException {
-            clientList.get(index).write(message);
+            catch(IOException e){
+                e.printStackTrace();
+                //this.closeConnections();
+            }
         }
 
-        public void sendToAll(Object message){
-            for(ConnectionToClient client : clientList)
-                client.write(message);
+        public void closeConnections(){
+            try{
+                outputToClient.close();
+                inputFromClient.close();
+                this.socket.close();
+                System.out.println("Shutting down server-side connections to client, and closing socket because client disconnected");
+            }
+            catch (IOException e){
+
+            }
         }
+
     }
     public static void main(String[] args){
         try {
