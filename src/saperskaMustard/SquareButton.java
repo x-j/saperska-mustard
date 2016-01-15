@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class SquareButton extends JButton {
 	
 	Board board;
-	char content = 'd'; //'d' is a placeholder until we get the real info from Board.
+	int content = -1; //-1 is a placeholder until we get the real info from Board.
 	static ArrayList<SquareButton>ALL_SQUAREBUTTONS = new ArrayList<>();
 	static boolean gameOver = false;
 	boolean uncovered = false;
@@ -31,7 +31,6 @@ public class SquareButton extends JButton {
 		}
 
 	};  //handles regular leftclicking on this square.
-
 
 
 	public SquareButton(final Board board, int i, int j) {
@@ -98,7 +97,7 @@ public class SquareButton extends JButton {
 		this.setEnabled(false);
 		this.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		this.setText(""+content);
-		if(content == 'm' && !gameOver){
+		if(content == 10 && !gameOver){
 			gameOver = true;
 			board.gameOver = true;
 			JOptionPane.showMessageDialog(this.getParent(), "Lol, you lost XD");

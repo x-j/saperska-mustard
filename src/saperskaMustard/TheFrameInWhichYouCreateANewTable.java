@@ -4,7 +4,6 @@ import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.*;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -154,7 +153,9 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 		if ( username.length() < 11 ) {
 			if ( username.length() < 2 )
 				JOptionPane.showMessageDialog(this, "The username must be at least 2 characters long.");
-			else {
+			else if( username.startsWith("@") ) {
+				JOptionPane.showMessageDialog(this, "The username cannot start with '@'.");
+			} else{
 
 				System.out.println("The birth of a new table begins now.");
 				System.out.println("Should be establishing connection with server now.");
@@ -165,11 +166,13 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 				//TableGUI table = new TableGUI(username, boardSize, board);
 				try {
 					Client hostConnection = new Client(true, ip, DEFAULT_PORT, username, boardSize);//starting server connection as host (new lobby)
-				} catch ( IOException e ) {
-					e.printStackTrace();
+					this.dispose();
+				} catch ( Exception e ) {
+					JOptionPane.showMessageDialog(this, "An error occurred: " + e.getMessage(), "Saperska Mustard", JOptionPane.ERROR_MESSAGE);
 				}
 
-				this.dispose();
+
+
 			}
 		} else
 			JOptionPane.showMessageDialog(this, "The username must be at most 10 characters long.");

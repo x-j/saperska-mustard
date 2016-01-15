@@ -21,7 +21,7 @@ public class Game {
 
 	public Game( GameInfo info) {
 		this.usernameOfHost = info.getUsername();
-		this.gameID = 0000 + MinesweeperThreadedServer.openGames.size(); //server already adds games to an array list, this is redundant
+		this.gameID = 0000 + MinesweeperThreadedServer.OPEN_GAMES.size(); //server already adds games to an array list, this is redundant
 		players.add(usernameOfHost);
 		numberOfMines = (int) ( Math.pow(boardSize, 2) * 0.18 );
 		this.boardSize = info.getBoardsize();
@@ -61,4 +61,7 @@ public class Game {
 		
 	}
 
+	public ArrayList<String> getPlayers() {
+		return players;
+	}
 }

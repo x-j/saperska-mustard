@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 public class Board {
 
+	public static final int MINE = 9;
+
 	//Board belongs to the client, stores all the necessary information about the board state, the players in the lobby, whose player turn it currently is etc.
 //	also recieves information from the server about which squares have been clicked and which not
 // also has all the methods necessary for setting up the board (i. e. the filling all the empty squares with numbers)
@@ -19,19 +21,19 @@ public class Board {
 	public TableGUI gui;
     public boolean hasBegun = false;
 
-    public Board( GameInfo info,String clientUsername ) {
+    public Board( GameInfo info, String clientUsername ) {
 		this.boardSize = info.getBoardsize();
 		this.usernameOfHost = info.getUsername();
 		numberOfMines = (int) ( Math.pow(boardSize, 2) * 0.18 );
         currentPlayer = usernameOfHost;
-        //this.clientUsername = clientUsername;
+        this.clientUsername = clientUsername;
 		players.add(clientUsername);
         squares = new SquareButton[boardSize][boardSize];
     }
 	
-	private ArrayList<Character> getNeighbours( int i, int j ) {
+	private ArrayList<Integer> getNeighbours( int i, int j ) {
 
-		ArrayList<Character> neighbours = new ArrayList<>();
+		ArrayList<Integer> neighbours = new ArrayList<>();
 
 		i++;
 		if ( squareExists(i, j) ) neighbours.add(squares[i][j].content);
@@ -64,13 +66,13 @@ public class Board {
 		for ( int i = 0; i < boardSize; i++ ) {
 			for ( int j = 0; j < boardSize; j++ ) {
 				if ( !mines[i][j] ) {
-					ArrayList<Character> neighbours = getNeighbours(i, j);
+					ArrayList<Integer> neighbours = getNeighbours(i, j);
 					int mineCounter = 0;
-					for ( char c : neighbours )
-						if ( c == 'm' ) mineCounter++;
+					for ( int c : neighbours )
+						if ( c == MINE ) mineCounter++;
 					if(mineCounter == 0) squares[i][j].content = ' ';
-					else squares[i][j].content = (char) ( mineCounter + '0' );
-				}else squares[i][j].content = 'm';
+					else squares[i][j].content = (char) ( mineCounter);
+				}else squares[i][j].content = MINE;
 			}
 		}
 
