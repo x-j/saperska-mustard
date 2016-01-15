@@ -24,13 +24,13 @@ public class TableGUI extends JFrame {
 	private JLabel statusIcon;
 	private JLabel whosePlayerTurnItIsLabel;
 
-	public TableGUI( String username, int boardSize, Board board ) {
+	public TableGUI( GameInfo info,String username , Board board ) {//username will always be username of client, since GameInfo already knows username of host
 
 		this.board = board;
 		board.gui = this;
-		usernameOfHost = board.usernameOfHost;
+		usernameOfHost = info.getUsername();
 		this.clientUsername = username;
-		this.boardSize = boardSize;
+		this.boardSize = info.getBoardsize();
 		counterOfMinesLeft = board.numberOfMines;
 
 		setTitle("Saperska Mustard - " + usernameOfHost + "'s room");

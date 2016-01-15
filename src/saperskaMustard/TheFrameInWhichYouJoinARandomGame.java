@@ -146,7 +146,7 @@ public class TheFrameInWhichYouJoinARandomGame extends JFrame {
                 System.out.println("Should be establishing connection with server now.");
 
                 try {
-                    Client hostConnection = new Client(false, ip, DEFAULT_PORT, username, boardSize);//starting server connection as host (new lobby)
+                    Client clientConnection = new Client(false, ip, DEFAULT_PORT, username, boardSize);//starting server connection as client (joing exisitng lobby)
                 } catch ( IOException e ) {
                     e.printStackTrace();
                 }

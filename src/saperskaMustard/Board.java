@@ -19,12 +19,13 @@ public class Board {
 	public TableGUI gui;
     public boolean hasBegun = false;
 
-    public Board( int boardSize, String usernameOfHost, String clientUsername ) {
-		this.boardSize = boardSize;
-		this.usernameOfHost = usernameOfHost;
+    public Board( GameInfo info,String clientUsername ) {
+		this.boardSize = info.getBoardsize();
+		this.usernameOfHost = info.getUsername();
 		numberOfMines = (int) ( Math.pow(boardSize, 2) * 0.18 );
         currentPlayer = usernameOfHost;
-        this.clientUsername = clientUsername;
+        //this.clientUsername = clientUsername;
+		players.add(clientUsername);
         squares = new SquareButton[boardSize][boardSize];
     }
 	

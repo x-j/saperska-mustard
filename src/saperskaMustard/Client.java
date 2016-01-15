@@ -31,12 +31,14 @@ public class Client {
         server = new ConnectionToServer(socket);
 
 	    if(isHost) {
-		    //  DEAR FILIP
-			//TODO here, the Client sends a request to the Server: please create a new Game, using the constructor most likely
-		    //so plx code this :)
+          GameInfo info = new GameInfo(username,IPAddress,boardSize);
+            Board board = new Board(info,username); // now hostUsername is passed twice, once by GameInfo, and once by us /*TODO maybe make a different constructor for Board that takes only one GameInfo arg. if isHost*/
+            TableGUI table = new TableGUI(info, username,board);/*TODO maybe make a different constructor for Board that takes only one GameInfo arg. if isHost*/
+            server.write(info);//sending server information about game
+            //as players join lobby, we must add players to the arraylist of players in Board.java, and somehow update tableGUI
 
 	    }else{
-
+             /*TODO send a special GameInfo object using a different constructor than the host above? Server will reply with standard GameInfo object and it will create table in same way as host*/
 
             /*
             TODO otherwise, send a request to the Server: please tell me how the Game looks like so I can create myself a Board
@@ -58,7 +60,10 @@ public class Client {
                         // Do some handling here...
                         System.out.println("Message Received: " + message);
                     }
-                    catch(InterruptedException e){ }
+                    catch(InterruptedException e){
+                        //server.closeConnections();//close client's connections with server since something fucked up
+                    }
+
                 }
             }
         };
@@ -85,7 +90,7 @@ public class Client {
         ObjectOutputStream outputToServer;
         Socket socket;
 
-        ConnectionToServer(Socket socket) throws IOException {
+       public ConnectionToServer(Socket socket) throws IOException {
             this.socket = socket;
             inputFromServer = new ObjectInputStream(socket.getInputStream());
             outputToServer = new ObjectOutputStream(socket.getOutputStream());
@@ -96,8 +101,11 @@ public class Client {
                         try{
                             Object obj = inputFromServer.readObject();
                             objectsReceivedFromServer.put(obj);
+
                         }
-                        catch(IOException e){ e.printStackTrace(); }
+                        catch(IOException e){
+                           // ConnectionToServer.this.closeConnections();
+                            e.printStackTrace();}
                         catch(ClassNotFoundException e){e.printStackTrace(); }
                         catch(InterruptedException e){e.printStackTrace(); }
                     }
@@ -112,7 +120,22 @@ public class Client {
             try{
                 outputToServer.writeObject(obj);
             }
-            catch(IOException e){ e.printStackTrace(); }
+            catch(IOException e){
+                e.printStackTrace();
+                //this.closeConnections();
+            }
+        }
+        private void closeConnections(){
+            try{
+                inputFromServer.close();
+                outputToServer.close();
+                socket.close();
+                System.out.println("We closed the client-side i/o streams and socket, most likely due to server shutdown/disconnect");
+                /*TODO display error window saying to client that server has shutdown*/
+            }
+            catch(IOException e){
+
+            }
         }
     }
 
