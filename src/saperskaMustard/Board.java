@@ -4,8 +4,9 @@ import java.util.ArrayList;
 
 public class Board {
 
-	public static final int MINE = 9;
-
+	public static final int MINE = 10;
+	public static final int FLAG = 9;
+	
 	//Board belongs to the client, stores all the necessary information about the board state, the players in the lobby, whose player turn it currently is etc.
 //	also recieves information from the server about which squares have been clicked and which not
 // also has all the methods necessary for setting up the board (i. e. the filling all the empty squares with numbers)
@@ -28,6 +29,7 @@ public class Board {
         currentPlayer = usernameOfHost;
         this.clientUsername = clientUsername;
 		players.add(clientUsername);
+	    SquareButton.setUpIcons();
         squares = new SquareButton[boardSize][boardSize];
     }
 	

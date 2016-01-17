@@ -37,7 +37,7 @@ public class MinesweeperThreadedServer {
 						clientList.add(new ConnectionToClient(clientsSocket));
 
 					} catch ( Exception e ) {
-						JOptionPane.showMessageDialog(sGUI, "An error occurred: " + e.getMessage(), "Saperska Mustard", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(sGUI, "An error occurred: " + "asd", "Saperska Mustard", JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			}
