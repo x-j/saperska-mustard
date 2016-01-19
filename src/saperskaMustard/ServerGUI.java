@@ -67,7 +67,7 @@ public class ServerGUI extends javax.swing.JFrame {
 
 		jLabel2.setText("send a message to all clients:");
 
-		jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/saperskaMustard/annoying dog.gif")));
+		jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/saperskaMustard/icons/annoying dog.gif")));
 
 		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
