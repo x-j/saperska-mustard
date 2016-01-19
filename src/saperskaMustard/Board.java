@@ -21,17 +21,28 @@ public class Board {
 	String clientUsername;
 	public TableGUI gui;
     public boolean hasBegun = false;
-
+	/*The constructor below is for clients*/
     public Board( GameInfo info, String clientUsername ) {
 		this.boardSize = info.getBoardsize();
 		this.usernameOfHost = info.getUsername();
 		numberOfMines = (int) ( Math.pow(boardSize, 2) * 0.18 );
-        currentPlayer = usernameOfHost;
-        this.clientUsername = clientUsername;
+		currentPlayer = usernameOfHost;
+		this.clientUsername = clientUsername;
 		players.add(clientUsername);
-	    SquareButton.setUpIcons();
-        squares = new SquareButton[boardSize][boardSize];
-    }
+		//SquareButton.setUpIcons();
+		squares = new SquareButton[boardSize][boardSize];
+	}
+	/*The constructor below is for hosts*/
+	public Board( GameInfo info) {
+		this.boardSize = info.getBoardsize();
+		this.usernameOfHost = info.getUsername();
+		numberOfMines = (int) ( Math.pow(boardSize, 2) * 0.18 );
+		currentPlayer = usernameOfHost;
+		this.clientUsername = info.getUsername();
+		players.add(clientUsername);
+		//SquareButton.setUpIcons();
+		squares = new SquareButton[boardSize][boardSize];
+	}
 	
 	private ArrayList<Integer> getNeighbours( int i, int j ) {
 

@@ -16,11 +16,15 @@ public class Client {
 	ObjectOutputStream outputToServer;
 	String username;
 	int boardSize;
+	GameInfo info;
+	Board board;
+	TableGUI table;
 
 	private ConnectionToServer server;
 	private LinkedBlockingQueue<Object> objectsReceivedFromServer;
 	private Socket socket;
-
+    private boolean hasAlreadyReceivedGameInfo = false;
+	private boolean hasAlreadyReceivedSquares = false;
 	public Client( boolean isHost, String IPAddress, int port, String clientUsername, int newboardSize ) throws IOException {
 		this.isHost = isHost;
 		this.username = clientUsername;//these 3 lines may not be necessary we can just use the ones passed into the function, but who knows
@@ -32,26 +36,24 @@ public class Client {
 
 		if ( isHost ) {
 
-			GameInfo info = new GameInfo(username, IPAddress, boardSize);
-			Board board = new Board(info, username); // now hostUsername is passed twice, once by GameInfo, and once by us /*TODO maybe make a different constructor for Board that takes only one GameInfo arg. if isHost*/
-			TableGUI table = new TableGUI(info, username, board);/*TODO maybe make a different constructor for Board that takes only one GameInfo arg. if isHost*/
+			info = new GameInfo(username, IPAddress, boardSize);
+			board = new Board(info, username); // DONE: added new Board constructor for hosts
+			table = new TableGUI(info, board);//DONE: added new TableGUI constructor for hosts
 			server.write(info);//sending server information about game
+			hasAlreadyReceivedGameInfo = true;//true since server does not need to send GameInfo to us again. host creates his own GameInfo
+			hasAlreadyReceivedSquares = false;
 			//as players join lobby, we must add players to the arraylist of players in Board.java, and somehow update tableGUI
 
+
+			//waiting for squares[][] array to be sent from server
 		} else {
-		     /*TODO send a special GameInfo object using a different constructor than the host above? Server will reply with standard GameInfo object and it will create table in same way as host*/
-			// nah, i think send a String username, the server will find a suitable game and add this user to the game ArrayList of players
-//			actually i'll try and code it now wish me luck
 
-			server.write("@username");
+            //CLIENT MUST CREATE HIS board in the thread handleObjectsFromServer because we must wait for GameInfo and squares.
+			server.write("@"+username);//after this was sent server must reply with squares[][] from a given game so we know how board looks like
+			hasAlreadyReceivedSquares = false;
+			hasAlreadyReceivedGameInfo = false;
 
-            /*
-            TODO otherwise, send a request to the Server: please tell me how the Game looks like so I can create myself a Board
-            todo this means that we have to find a suitable game
-            TODO IF THE FOUND SUITABLE GAME ALREADY HAS A PLAYER WITH OUR USERNAME, ADD '1' AT THE END OF OUR USERNAME
-            TODO we add our player to the list of players in the given Game
-            and in the meantime, a popup window appears telling us that we're waiting for the connection
-            */
+
 			ConnectionPopup popup = new ConnectionPopup();
 
 		}
@@ -61,23 +63,37 @@ public class Client {
 			public void run() {
 				while ( true ) {
 					try {
-						Object message = objectsReceivedFromServer.take();
+						Object objectFromServer = objectsReceivedFromServer.take();
 						// Do some handling here...
 
 						//TODO IF WE RECEIVED INFO ABOUT THE GAME ITSELF, THEN MAKE A NEW BOARD AND GUI:
-                           /*
-
-                          Board board = new Board(ARGS);
-                          TableGUI table = new TableGUI(ARGS);
-                          popup.dispose(); //and we can now close the popup window.
 
 
-                                           */
+						if(objectFromServer instanceof  GameInfo && hasAlreadyReceivedGameInfo ==false){
+							info = ((GameInfo)objectFromServer);
+							hasAlreadyReceivedGameInfo = true;
+							board = new Board(info, username);
+							table = new TableGUI(info, board);
+
+						}
+
+
+
 						//TODO if we recieved a two dimensional array of booleans, activate the setUpSquares method in Board.
-						//TODO if we received coordinates, activate the receiveClick method in Board.
-						//TODO if we receive a String then add it to the Chatbox
 
-						System.out.println("Message Received: " + message);
+
+
+                       else if(objectFromServer instanceof String){//we received a chat message
+							String message = (String)objectFromServer;
+							System.out.println("Message Received: " + message);
+							//TODO if we receive a String then add it to the Chatbox
+						}
+						else if(objectFromServer instanceof int[]){
+							int[] coordinates = ((int[])objectFromServer);
+							//TODO we must check if these coordinates came from our game somehow ¯\_(ツ)_/¯
+							//TODO if we received coordinates, activate the receiveClick method in Board.
+						}
+
 					} catch ( InterruptedException e ) {
 						//server.closeConnections();//close client's connections with server since something fucked up
 					}

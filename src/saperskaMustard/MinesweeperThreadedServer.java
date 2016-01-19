@@ -64,7 +64,8 @@ public class MinesweeperThreadedServer {
 								do {
 									index = (int) ( Math.random() * OPEN_GAMES.size() ); //we randomize a game for him here
 									game = OPEN_GAMES.get(index);
-								} while ( game.getPlayers().size() >= 4 );    //we check if the game is already filled
+								} while ( game.getPlayers().size() >= 4 );
+								System.out.println("It seems like a client has joined an existing game");//we check if the game is already filled
 								if ( game.getPlayers().contains(newPlayer) )
 									newPlayer += "1";  //this line right here gets rid of the awkwardness of having two players with the same username in-game
 								game.getPlayers().add(newPlayer);   //if not, we add him!
@@ -76,14 +77,15 @@ public class MinesweeperThreadedServer {
 							}
 
 						} else if ( nextObjectInQueue instanceof GameInfo ) {
-							//We received a request to start a new game from a client
-							GameInfo info = ( (GameInfo) nextObjectInQueue );
-							Game newGame = new Game(info);
-							OPEN_GAMES.add(newGame);
-							System.out.println("w00t we received a request to host a game from a client and server successfully created game");
+								//We received a request to start a new game from a client
+								GameInfo info = ( (GameInfo) nextObjectInQueue );
+								Game newGame = new Game(info);
+								OPEN_GAMES.add(newGame);
+								System.out.println("w00t we received a request to host a game from a client and server successfully created game");
 
-							//} else if(nextObjectInQueue instanceof int[]){
-
+							}
+						  else if(nextObjectInQueue instanceof int[]){//we received click information
+							int[] coordinates = ((int[])(nextObjectInQueue));
 
 						}
 

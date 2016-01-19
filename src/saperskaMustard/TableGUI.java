@@ -24,12 +24,46 @@ public class TableGUI extends JFrame {
 	private JLabel statusIcon;
 	private JLabel whosePlayerTurnItIsLabel;
 
+/*The constructor below is used for clients*/
 	public TableGUI( GameInfo info,String username , Board board ) {//username will always be username of client, since GameInfo already knows username of host
 
 		this.board = board;
 		board.gui = this;
 		usernameOfHost = info.getUsername();
 		this.clientUsername = username;
+		this.boardSize = info.getBoardsize();
+		counterOfMinesLeft = board.numberOfMines;
+
+		setTitle("Saperska Mustard - " + usernameOfHost + "'s room");
+		setVisible(true);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		addWindowListener(new WindowAdapter() { // this block adds the exit
+			// prompt
+			public void windowClosing( WindowEvent we ) {
+
+				String ObjButtons[] = {"Yes", "No"};
+				int PromptResult = JOptionPane.showOptionDialog(null, "Are you sure you want to exit?",
+						"Saperska Mustard", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null,
+						ObjButtons, ObjButtons[1]);
+				if ( PromptResult == JOptionPane.YES_OPTION ) {
+					System.exit(0);
+				}
+			}
+		});
+		setResizable(false);
+		this.lookAndFeelCustomization();
+		initComponents();
+		makeTheTable();
+		initializeChatbox();
+
+	}
+	/*************The constructor below is only used for hosts!******************/
+	public TableGUI( GameInfo info,Board board ) {//both clientUsername and hostUsername are the same, I think that's ok for now?
+
+		this.board = board;
+		board.gui = this;
+		usernameOfHost = info.getUsername();
+		this.clientUsername = info.getUsername();
 		this.boardSize = info.getBoardsize();
 		counterOfMinesLeft = board.numberOfMines;
 
