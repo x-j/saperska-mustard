@@ -82,10 +82,22 @@ public class MinesweeperThreadedServer {
 								Game newGame = new Game(info);
 								OPEN_GAMES.add(newGame);
 								System.out.println("w00t we received a request to host a game from a client and server successfully created game");
+							  //////Maybe once we get a game we send the index of the game both in ConnectionToClient and Client.
 
 							}
 						  else if(nextObjectInQueue instanceof int[]){//we received click information
 							int[] coordinates = ((int[])(nextObjectInQueue));
+							/*EXAMPLE CODE
+							*
+							* for(int i = 0; i < clientList.size(); i++){
+							* 	if(c.getGameIndex() == gameIndex){
+							* 		sendToOne(i,object);
+							* 	}
+							* }
+							*
+							*
+							*
+							* */
 
 						}
 
