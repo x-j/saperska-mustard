@@ -48,7 +48,7 @@ public class ServerGUI extends javax.swing.JFrame {
 	
 	private void initComponents() {
 
-		jButton1 = new javax.swing.JButton();
+		exitButton = new javax.swing.JButton();
 		jLabel1 = new javax.swing.JLabel();
 		jTextField1 = new javax.swing.JTextField();
 		jLabel2 = new javax.swing.JLabel();
@@ -56,8 +56,8 @@ public class ServerGUI extends javax.swing.JFrame {
 
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-		jButton1.setText("Exit");
-		jButton1.addActionListener(new java.awt.event.ActionListener() {
+		exitButton.setText("Exit");
+		exitButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed( java.awt.event.ActionEvent evt ) {
 				jButton1ActionPerformed(evt);
 			}
@@ -67,7 +67,7 @@ public class ServerGUI extends javax.swing.JFrame {
 
 		jLabel2.setText("send a message to all clients:");
 
-		jLabel3.setIcon(new ImageIcon(getClass().getResource("/saperskaMustard/icons/annoying dog.gif")));
+		//jLabel3.setIcon(new ImageIcon(getClass().getResource("/saperskaMustard/icons/annoying dog.gif")));
 
 		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
@@ -77,7 +77,7 @@ public class ServerGUI extends javax.swing.JFrame {
 								.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 										.addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
 												.addGap(0, 0, Short.MAX_VALUE)
-												.addComponent(jButton1))
+												.addComponent(exitButton))
 										.addGroup(layout.createSequentialGroup()
 												.addContainerGap()
 												.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -104,7 +104,7 @@ public class ServerGUI extends javax.swing.JFrame {
 								.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 								.addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
 								.addGap(18, 18, 18)
-								.addComponent(jButton1)
+								.addComponent(exitButton)
 								.addContainerGap())
 		);
 
@@ -137,7 +137,7 @@ public class ServerGUI extends javax.swing.JFrame {
 
 	}
 
-	private javax.swing.JButton jButton1;
+	private javax.swing.JButton exitButton;
 	private javax.swing.JLabel jLabel1;
 	private javax.swing.JLabel jLabel2;
 	private javax.swing.JLabel jLabel3;

@@ -1,6 +1,7 @@
 package saperskaMustard;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class Board {
 
@@ -21,38 +22,49 @@ public class Board {
 	String clientUsername;
 	public TableGUI gui;
     public boolean hasBegun = false;
-
-    public Board( GameInfo info, String clientUsername ) {
+	/*The constructor below is for clients*/
+    public Board( GameInfo info, String username) {
 		this.boardSize = info.getBoardsize();
-		this.usernameOfHost = info.getUsername();
+		this.usernameOfHost = info.getUsernameOfHost();
 		numberOfMines = (int) ( Math.pow(boardSize, 2) * 0.18 );
-        currentPlayer = usernameOfHost;
-        this.clientUsername = clientUsername;
+		currentPlayer = info.getUsernameOfHost();
+		this.clientUsername = username;
 		players.add(clientUsername);
-	    SquareButton.setUpIcons();
-        squares = new SquareButton[boardSize][boardSize];
-    }
+		squares = new SquareButton[boardSize][boardSize];
+		SquareButton.setUpIcons();
+	}
+	/*The constructor below is for hosts*/
+	public Board( GameInfo info) {
+		this.boardSize = info.getBoardsize();
+		this.usernameOfHost = info.getUsernameOfHost();
+		numberOfMines = (int) ( Math.pow(boardSize, 2) * 0.18 );
+		currentPlayer = usernameOfHost;
+		this.clientUsername = info.getUsernameOfHost();
+		players.add(clientUsername);
+		squares = new SquareButton[boardSize][boardSize];
+		SquareButton.setUpIcons();
+	}
 	
-	private ArrayList<Integer> getNeighbours( int i, int j ) {
+	private ArrayList<SquareButton> getNeighbours( int i, int j ) {
 
-		ArrayList<Integer> neighbours = new ArrayList<>();
+		ArrayList<SquareButton> neighbours = new ArrayList<>();
 
 		i++;
-		if ( squareExists(i, j) ) neighbours.add(squares[i][j].content);
+		if ( squareExists(i, j) ) neighbours.add(squares[i][j]);
 		j++;
-		if ( squareExists(i, j) ) neighbours.add(squares[i][j].content);
+		if ( squareExists(i, j) ) neighbours.add(squares[i][j]);
 		i--;
-		if ( squareExists(i, j) ) neighbours.add(squares[i][j].content);
+		if ( squareExists(i, j) ) neighbours.add(squares[i][j]);
 		i--;
-		if ( squareExists(i, j) ) neighbours.add(squares[i][j].content);
+		if ( squareExists(i, j) ) neighbours.add(squares[i][j]);
 		j--;
-		if ( squareExists(i, j) ) neighbours.add(squares[i][j].content);
+		if ( squareExists(i, j) ) neighbours.add(squares[i][j]);
 		j--;
-		if ( squareExists(i, j) ) neighbours.add(squares[i][j].content);
+		if ( squareExists(i, j) ) neighbours.add(squares[i][j]);
 		i++;
-		if ( squareExists(i, j) ) neighbours.add(squares[i][j].content);
+		if ( squareExists(i, j) ) neighbours.add(squares[i][j]);
 		i++;
-		if ( squareExists(i, j) ) neighbours.add(squares[i][j].content);
+		if ( squareExists(i, j) ) neighbours.add(squares[i][j]);
 
 		return neighbours;
 	}
@@ -68,10 +80,10 @@ public class Board {
 		for ( int i = 0; i < boardSize; i++ ) {
 			for ( int j = 0; j < boardSize; j++ ) {
 				if ( !mines[i][j] ) {
-					ArrayList<Integer> neighbours = getNeighbours(i, j);
+					ArrayList<SquareButton> neighbours = getNeighbours(i, j);
 					int mineCounter = 0;
-					for ( int c : neighbours )
-						if ( c == MINE ) mineCounter++;
+					for ( SquareButton sb : neighbours )
+						if ( sb.content == MINE ) mineCounter++;
 					if(mineCounter == 0) squares[i][j].content = ' ';
 					else squares[i][j].content = (char) ( mineCounter);
 				}else squares[i][j].content = MINE;
@@ -103,6 +115,7 @@ public class Board {
 	}
 
 	public void receiveClick(int i, int j ){    //this method gets called somewhere from the Client class
+
 		//after receiving information from the server about a clicked square, we update our local Board
 
 		squares[i][j].reveal();
@@ -118,7 +131,33 @@ public class Board {
 
 		}
 
-
+		
 
 	}
+	
+	public void updateBoard(GameInfo gi){
+		
+		players = gi.getPlayers();
+		
+	}
+	public void uncoverEmptyAdjacent(int i, int j) {
+		
+		Stack<SquareButton>stack = new Stack<>();
+		SquareButton root = squares[i][j];
+		stack.push(root);
+		while(!stack.isEmpty()){
+			
+			SquareButton current = stack.pop();
+			current.reveal();
+			ArrayList<SquareButton>neighbours = getNeighbours(current.i, current.j);
+			for (SquareButton sb : neighbours) {
+				if(!sb.uncovered && sb.content!=MINE)
+					stack.add(sb);
+			}
+			
+			
+		}
+		
+	}
+	
 }

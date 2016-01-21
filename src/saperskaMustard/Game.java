@@ -20,7 +20,7 @@ public class Game {
 	boolean[][] mines;
 
 	public Game( GameInfo info) {
-		this.usernameOfHost = info.getUsername();
+		this.usernameOfHost = info.getUsernameOfHost();
 		this.gameID = 0000 + MinesweeperThreadedServer.OPEN_GAMES.size(); //server already adds games to an array list, this is redundant
 		players.add(usernameOfHost);
 		numberOfMines = (int) ( Math.pow(boardSize, 2) * 0.18 );

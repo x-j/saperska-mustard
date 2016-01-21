@@ -149,11 +149,14 @@ public class MinesweeperThreadedServer {
 										ConnectionToClient.this.gameIndex = (int) ( Math.random() * OPEN_GAMES.size() ); //we randomize a game for him here
 										game = OPEN_GAMES.get(ConnectionToClient.this.gameIndex);
 									} while ( game.getPlayers().size() >= 4 );
-									System.out.println("It seems like a client has joined an existing game");//we check if the game is already filled
+									System.out.println("It seems like a client has joined an existing game"); //we check if the game is already filled
 									if ( game.getPlayers().contains(newPlayer) )
 										newPlayer += "1";  //this line right here gets rid of the awkwardness of having two players with the same username in-game
 									game.getPlayers().add(newPlayer);   //if not, we add him!
 									//we do not add the username to queue since it's not a chat message
+									
+									//sendToAllInThisGame(gameInfo);
+									
 								}
 								else{
 									receivedObjects.put(obj);
