@@ -75,11 +75,11 @@ public class Client {
 
 						} else if (objectFromServer instanceof GameInfo && hasAlreadyReceivedGameInfo == true) {
 
-							// board.updateBoard((GameInfo)objectFromServer);
+							board.updateBoard((GameInfo)objectFromServer);
 
 						}
 
-//TODO if we recieved a two dimensional array of booleans, activate the setUpSquares method in Board.
+						//TODO if we recieved a two dimensional array of booleans, activate the setUpSquares method in Board.
 						else if (objectFromServer instanceof String) {//we received a chat message
 							String message = (String) objectFromServer;
 							System.out.println("Message Received: " + message);

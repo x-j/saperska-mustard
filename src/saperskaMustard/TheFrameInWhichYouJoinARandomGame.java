@@ -11,7 +11,6 @@ import java.net.UnknownHostException;
 public class TheFrameInWhichYouJoinARandomGame extends JFrame {
 
 	String username;
-	int boardSize;
 	public final static int DEFAULT_PORT = 5000;
 	final private static String DEFAULT_USERNAME_FIELD_TEXT = "TEST";
 	public static String DEFAULT_IP_ADDRESS;
@@ -71,8 +70,8 @@ public class TheFrameInWhichYouJoinARandomGame extends JFrame {
 			}
 		});
 
-		textField = new JTextField(DEFAULT_IP_ADDRESS);
-		textField.setToolTipText("enter the IP of the server here");
+		ipTextField = new JTextField(DEFAULT_IP_ADDRESS);
+		ipTextField.setToolTipText("enter the IP of the server here");
 
 		GroupLayout layout = new GroupLayout(getContentPane());
 		layout.setHorizontalGroup(
@@ -87,7 +86,7 @@ public class TheFrameInWhichYouJoinARandomGame extends JFrame {
 										.addGroup(layout.createSequentialGroup()
 												.addComponent(theFieldInWhichYouInputYourUsername, GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
 												.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
-										.addComponent(textField, GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE))
+										.addComponent(ipTextField, GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE))
 								.addGap(84))
 						.addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
 								.addGap(39)
@@ -108,7 +107,7 @@ public class TheFrameInWhichYouJoinARandomGame extends JFrame {
 								.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
 								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 										.addComponent(ipLabel, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
-										.addComponent(textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+										.addComponent(ipTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 								.addGap(15)
 								.addComponent(joinGameButton)
 								.addGap(15)
@@ -147,7 +146,7 @@ public class TheFrameInWhichYouJoinARandomGame extends JFrame {
 				System.out.println("Should be establishing connection with server now.");
 
 				try {
-					Client clientConnection = new Client(false, ip, DEFAULT_PORT, username, boardSize);//starting server connection as client (joing exisitng lobby)
+					Client clientConnection = new Client(false, ip, DEFAULT_PORT, username, -1);//starting server connection as client (joing exisitng lobby), boardSize is -1 to indicate that we're not host
 					this.dispose();
 				} catch ( Exception e ) {
 					JOptionPane.showMessageDialog(this, "An error occurred: " + e.getMessage(), "Saperska Mustard", JOptionPane.ERROR_MESSAGE);
@@ -195,7 +194,7 @@ public class TheFrameInWhichYouJoinARandomGame extends JFrame {
 	private JLabel ipLabel;
 	private JTextField theFieldInWhichYouInputYourUsername;
 	private JLabel usernameLabel;
-	private JTextField textField;
+	private JTextField ipTextField;
 
 
 }

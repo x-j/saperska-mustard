@@ -17,32 +17,20 @@ public class TableGUI extends JFrame {
 	private JPanel boardPanel;
 	private JTextArea chatboxArea;
 	private JTextField chatboxMessageField;
-	JLabel minesLeftLabel;
-	private JScrollPane paneOfChatbox;
+	public JLabel minesLeftLabel;
 	private JButton quitToMMButton;
 	private JButton startGameButton;
-	private JLabel statusIcon;
+	public JLabel statusIcon;
 	private JLabel whosePlayerTurnItIsLabel;
 
 	/* The constructor below is used for clients */
-	public TableGUI(GameInfo info, String username, Board board) {// username
-																	// will
-																	// always be
-																	// username
-																	// of
-																	// client,
-																	// since
-																	// GameInfo
-																	// already
-																	// knows
-																	// username
-																	// of host
+	public TableGUI(GameInfo info, String username, Board board) {// username will always be username of client, since GameInfo already knows username of host
 
 		this.board = board;
 		board.gui = this;
 		usernameOfHost = info.getUsernameOfHost();
 		this.clientUsername = username;
-		this.boardSize = info.getBoardsize();
+		this.boardSize = info.getBoardSize();
 		counterOfMinesLeft = board.numberOfMines;
 
 		startGUI();
@@ -51,16 +39,13 @@ public class TableGUI extends JFrame {
 
 	/************* The constructor below is only used for hosts! ******************/
 
-	public TableGUI(GameInfo info, Board board) {// both clientUsername and
-													// hostUsername are the
-													// same, I think that's ok
-													// for now?
+	public TableGUI(GameInfo info, Board board) {// both clientUsername and hostUsername are the same, I think that's ok for now?
 
 		this.board = board;
 		board.gui = this;
 		usernameOfHost = info.getUsernameOfHost();
 		this.clientUsername = info.getUsernameOfHost();
-		this.boardSize = info.getBoardsize();
+		this.boardSize = info.getBoardSize();
 		counterOfMinesLeft = board.numberOfMines;
 
 		startGUI();
@@ -104,7 +89,6 @@ public class TableGUI extends JFrame {
 		startGameButton = new JButton();
 		statusIcon = new JLabel();
 		minesLeftLabel = new JLabel();
-		paneOfChatbox = new JScrollPane();
 		chatboxArea = new JTextArea();
 
 		if (clientUsername == usernameOfHost)
@@ -142,9 +126,9 @@ public class TableGUI extends JFrame {
 
 		chatboxArea.setColumns(boardSize);
 		chatboxArea.setRows(boardSize);
-		paneOfChatbox.setViewportView(chatboxArea);
-		paneOfChatbox.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		paneOfChatbox.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		chatbox.setViewportView(chatboxArea);
+		chatbox.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		chatbox.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
 		GroupLayout layout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
@@ -156,14 +140,14 @@ public class TableGUI extends JFrame {
 										.addGroup(
 												layout.createSequentialGroup().addComponent(whosePlayerTurnItIsLabel, GroupLayout.PREFERRED_SIZE, boardSize * 15 / 2, GroupLayout.PREFERRED_SIZE).addGap(boardSize * 5 / 2, boardSize * 5 / 2, boardSize * 5 / 2).addComponent(statusIcon, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE).addGap(boardSize * 5 / 2, boardSize * 5 / 2, boardSize * 5 / 2)
 														.addComponent(minesLeftLabel, GroupLayout.PREFERRED_SIZE, boardSize * 10, GroupLayout.PREFERRED_SIZE)).addComponent(boardPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)).addGap(15, 15, 15)
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addComponent(startGameButton).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE).addComponent(quitToMMButton, GroupLayout.PREFERRED_SIZE, 82, GroupLayout.PREFERRED_SIZE)).addComponent(chatboxMessageField).addComponent(paneOfChatbox)).addContainerGap()));
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addComponent(startGameButton).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE).addComponent(quitToMMButton, GroupLayout.PREFERRED_SIZE, 82, GroupLayout.PREFERRED_SIZE)).addComponent(chatboxMessageField).addComponent(chatbox)).addContainerGap()));
 		layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(
 				layout.createSequentialGroup()
 						.addContainerGap()
 						.addGroup(
 								layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
 										.addGroup(
-												layout.createSequentialGroup().addComponent(paneOfChatbox, GroupLayout.PREFERRED_SIZE, boardSize * 20, GroupLayout.PREFERRED_SIZE).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(chatboxMessageField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+												layout.createSequentialGroup().addComponent(chatbox, GroupLayout.PREFERRED_SIZE, boardSize * 20, GroupLayout.PREFERRED_SIZE).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(chatboxMessageField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 														.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false).addComponent(startGameButton, GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE).addComponent(quitToMMButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
 										.addGroup(
 												layout.createSequentialGroup()
