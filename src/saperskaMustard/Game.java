@@ -8,25 +8,21 @@ public class Game {
 //	also has the chatbox history, catches new messages and sends them to all users
 //	also sends information to new players connecting to the lobby
 
-	public String usernameOfHost;
 	int numberOfMines;
-	public int boardSize;
 	public boolean firstClickHappened = false;
-	String ipOfHost;
-	private ArrayList<String> players = new ArrayList<>();
 	public int gameID;
+	private GameInfo info;
+	private boolean isOpen;
 	//public static ArrayList<Game> ALL_GAMES = new ArrayList<>(); /*number of games is already tracked by the server*/
 
 	boolean [][] mines;
 
-	public Game( GameInfo info) {
-		this.usernameOfHost = info.getUsernameOfHost();
+	public Game( GameInfo info ) {
+		this.info = info;
 		this.gameID = 0000 + MinesweeperThreadedServer.OPEN_GAMES.size(); //server already adds games to an array list, this is redundant
-		players.add(usernameOfHost);
-		numberOfMines = (int) ( Math.pow(boardSize, 2) * 0.18 );
-		this.boardSize = info.getBoardsize();
-		this.ipOfHost = info.getIpAddress();
-		mines = new boolean[boardSize][boardSize];
+		numberOfMines = (int) ( Math.pow(info.getBoardSize(), 2) * 0.18 );
+		mines = new boolean[info.getBoardSize()][info.getBoardSize()];
+		isOpen = true;
 
 	}
 
@@ -40,8 +36,8 @@ public class Game {
 				int rand1;
 				int rand2;
 				do {
-					rand1 = (int) ( Math.random() * boardSize );
-					rand2 = (int) ( Math.random() * boardSize );
+					rand1 = (int) ( Math.random() * info.getBoardSize() );
+					rand2 = (int) ( Math.random() * info.getBoardSize() );
 				} while ( mines[rand1][rand2] == true || ( rand1 == i && rand2 == j ) );
 
 				mines[rand1][rand2] = true;
@@ -62,6 +58,31 @@ public class Game {
 	}
 
 	public ArrayList<String> getPlayers() {
-		return players;
+		return info.getPlayers();
 	}
+
+	public String getIpOfHost() {
+		return info.getIpAddress();
+	}
+
+	public String getUsernameOfHost(){
+		return info.getUsernameOfHost();
+	}
+	
+	public int getBoardSize(){
+		return info.getBoardSize();
+	}
+
+	public GameInfo getInfo() {
+		return info;
+	}
+
+	public boolean isOpen() {
+		return isOpen;
+	}
+
+	public void setOpen(boolean isOpen) {
+		this.isOpen = isOpen;
+	}
+	
 }

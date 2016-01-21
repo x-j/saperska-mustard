@@ -1,6 +1,9 @@
 package saperskaMustard;
 
-public class Chatbox {
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+
+public class Chatbox extends JScrollPane{
 
 	public void sendMessage(String message) {
 		
