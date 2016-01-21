@@ -156,7 +156,7 @@ public class MinesweeperThreadedServer {
 										newPlayer += "1";  //this line right here gets rid of the awkwardness of having two players with the same username in-game
 									game.getPlayers().add(newPlayer);   //if not, we add him!
 									//we do not add the username to queue since it's not a chat message
-									GameInfo info = new GameInfo(game.usernameOfHost, game.ipOfHost, game.boardSize, gameIndex);
+									GameInfo info = game.getInfo();
 									outputToClient.writeObject(info);
 								} else {
 									receivedObjects.put(obj);

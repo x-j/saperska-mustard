@@ -29,7 +29,7 @@ public class Board {
 
 	/* The constructor below is for clients */
 	public Board(GameInfo info, String username) {
-		this.boardSize = info.getBoardsize();
+		this.boardSize = info.getBoardSize();
 		this.usernameOfHost = info.getUsernameOfHost();
 		numberOfMines = (int) (Math.pow(boardSize, 2) * 0.18);
 		currentPlayer = info.getUsernameOfHost();
@@ -41,7 +41,7 @@ public class Board {
 
 	/* The constructor below is for hosts */
 	public Board(GameInfo info) {
-		this.boardSize = info.getBoardsize();
+		this.boardSize = info.getBoardSize();
 		this.usernameOfHost = info.getUsernameOfHost();
 		numberOfMines = (int) (Math.pow(boardSize, 2) * 0.18);
 		currentPlayer = usernameOfHost;
