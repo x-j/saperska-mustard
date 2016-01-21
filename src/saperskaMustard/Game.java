@@ -17,7 +17,7 @@ public class Game {
 	public int gameID;
 	//public static ArrayList<Game> ALL_GAMES = new ArrayList<>(); /*number of games is already tracked by the server*/
 
-	boolean[][] mines;
+	boolean [][] mines;
 
 	public Game( GameInfo info) {
 		this.usernameOfHost = info.getUsernameOfHost();
@@ -32,7 +32,7 @@ public class Game {
 
 	public void click( int i, int j ) {   //this method will be called from some outer class, ints i, j come from the user
 // it sets up the mines if there arent any, and then shares the information about a click with other players
-		
+
 		if ( !firstClickHappened ) {
 
 			//sets up the mines here.
@@ -57,8 +57,8 @@ public class Game {
 		//TODO now, send to information about which square was clicked (so i, j) to all players
 		//clients upon receiving these two integers (or put them in an array of size 2, whichever works better)
 		//will update their Board via the receiveClick method in class Board
-		
-		
+
+
 	}
 
 	public ArrayList<String> getPlayers() {

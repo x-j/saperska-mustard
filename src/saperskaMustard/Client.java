@@ -16,6 +16,7 @@ public class Client {
 	ObjectOutputStream outputToServer;
 	String username;
 	int boardSize;
+	int gameIndex;
 	GameInfo info;
 	Board board;
 	TableGUI table;
@@ -24,11 +25,12 @@ public class Client {
 	private LinkedBlockingQueue<Object> objectsReceivedFromServer;
 	private Socket socket;
 	private boolean hasAlreadyReceivedGameInfo = false;
-	private boolean hasAlreadyReceivedSquares = false;
+	private boolean hasAlreadyReceivedGameIndex = false;
+	//private boolean hasAlreadyReceivedSquares = false;
 
 	public Client(boolean isHost, String IPAddress, int port, String clientUsername, int newboardSize) throws IOException {
 		this.isHost = isHost;
-		this.username = clientUsername;// these 3 lines may not be necessary we can just use the ones passed into the function, but who knows
+		this.username = clientUsername;//these 3 lines may not be necessary we can just use the ones passed into the function, but who knows
 		this.boardSize = newboardSize;
 
 		socket = new Socket(IPAddress, port);
@@ -37,27 +39,22 @@ public class Client {
 
 		if (isHost) {
 
-			info = new GameInfo(username, IPAddress, boardSize);
+			info = new GameInfo(username, IPAddress, boardSize, -1);//-1 because we do not know what game index the server will create for us
 			board = new Board(info, username); // DONE: added new Board constructor for hosts
-			table = new TableGUI(info, board);// DONE: added new TableGUI constructor for hosts
-			server.write(info);// sending server information about game
-			hasAlreadyReceivedGameInfo = true;// true since server does not need to send GameInfo to us again. host creates his own GameInfo
-			hasAlreadyReceivedSquares = false;
-			// as players join lobby, we must add players to the arraylist of players in Board.java, and somehow update tableGUI
+			table = new TableGUI(info, board);//DONE: added new TableGUI constructor for hosts
+			server.write(info);//sending server information about game
+			hasAlreadyReceivedGameInfo = true;//true since server does not need to send GameInfo to us again. host creates his own GameInfo
+			hasAlreadyReceivedGameIndex = false;
+			//as players join lobby, we must add players to the arraylist of players in Board.java, and somehow update tableGUI
 
-			// waiting for squares[][] array to be sent from server
+			//waiting for squares[][] array to be sent from server
 		} else {
 
-			// CLIENT MUST CREATE HIS board in the thread
-			// handleObjectsFromServer because we must wait for GameInfo and
-			// squares.
-			server.write("@" + username); // after this was sent server must
-											// reply with squares[][] from a
-											// given game so we know how board
-											// looks like
-			hasAlreadyReceivedSquares = false;
+			//CLIENT MUST CREATE HIS board in the thread handleObjectsFromServer because we must wait for GameInfo and squares.
+			server.write("@" + username);//after this was sent server must reply with squares[][] from a given game so we know how board looks like
+			//hasAlreadyReceivedSquares = false;
 			hasAlreadyReceivedGameInfo = false;
-
+			hasAlreadyReceivedGameIndex = false;
 			ConnectionPopup popup = new ConnectionPopup();
 
 		}
@@ -69,34 +66,32 @@ public class Client {
 						Object objectFromServer = objectsReceivedFromServer.take();
 						// Do some handling here...
 
-						// TODO IF WE RECEIVED INFO ABOUT THE GAME ITSELF, THEN
-						// MAKE A NEW BOARD AND GUI:
-
+						//TODO IF WE RECEIVED INFO ABOUT THE GAME ITSELF, THEN MAKE A NEW BOARD AND GUI:
 						if (objectFromServer instanceof GameInfo && hasAlreadyReceivedGameInfo == false) {
 							info = ((GameInfo) objectFromServer);
 							hasAlreadyReceivedGameInfo = true;
 							board = new Board(info, username);
 							table = new TableGUI(info, board);
 
+						} else if (objectFromServer instanceof GameInfo && hasAlreadyReceivedGameInfo == true) {
+
+							// board.updateBoard((GameInfo)objectFromServer);
+
 						}
 
-						// TODO if we recieved a two dimensional array of booleans, activate the setUpSquares method in Board.
-
-						else if (objectFromServer instanceof String) {// we received a chat message
+//TODO if we recieved a two dimensional array of booleans, activate the setUpSquares method in Board.
+						else if (objectFromServer instanceof String) {//we received a chat message
 							String message = (String) objectFromServer;
 							System.out.println("Message Received: " + message);
-							// TODO if we receive a String then add it to the
-							// Chatbox
+							//TODO if we receive a String then add it to the Chatbox
 						} else if (objectFromServer instanceof int[]) {
-							
 							int[] coordinates = ((int[]) objectFromServer);
-							// TODO we must check if these coordinates came from  our game somehow ¯\_(ツ)_/¯
-							// TODO if we received coordinates, activate the  receiveClick method in Board.
+							//TODO we must check if these coordinates came from our game somehow ¯\_(ツ)_/¯
+							//TODO if we received coordinates, activate the receiveClick method in Board.
 						}
 
 					} catch (InterruptedException e) {
-						// server.closeConnections();
-						//close client's  connections with server since something fucked up
+						//server.closeConnections();//close client's connections with server since something fucked up
 					}
 
 				}
@@ -108,6 +103,7 @@ public class Client {
 	}
 
 	private class ConnectionToServer {
+
 		ObjectInputStream inputFromServer;
 		ObjectOutputStream outputToServer;
 		Socket socket;
@@ -145,7 +141,7 @@ public class Client {
 				outputToServer.writeObject(obj);
 			} catch (IOException e) {
 				e.printStackTrace();
-				// this.closeConnections();
+				//this.closeConnections();
 			}
 		}
 
@@ -155,10 +151,7 @@ public class Client {
 				outputToServer.close();
 				socket.close();
 				System.out.println("We closed the client-side i/o streams and socket, most likely due to server shutdown/disconnect");
-				/*
-				 * TODO display error window saying to client that server has
-				 * shutdown
-				 */
+                /*TODO display error window saying to client that server has shutdown*/
 			} catch (IOException e) {
 
 			}
@@ -192,7 +185,7 @@ public class Client {
 		}
 
 		private void setActionListener() {
-			quitButton.addActionListener(new ActionListener() {
+			jButton1.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					System.exit(0);
@@ -203,38 +196,48 @@ public class Client {
 
 		private void initComponents() {
 
-			quitButton = new javax.swing.JButton();
-			statusInfoLabel = new javax.swing.JLabel();
+			jButton1 = new javax.swing.JButton();
+			jLabel1 = new javax.swing.JLabel();
 
 			setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 			setTitle("Saperska Mustard");
 			setAutoRequestFocus(false);
 			setResizable(false);
-			// setType(java.awt.Window.Type.POPUP);
+			//setType(java.awt.Window.Type.POPUP);
 
-			quitButton.setText("Quit");
+			jButton1.setText("Quit");
 
-			statusInfoLabel.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-			statusInfoLabel.setText("Connecting to server...");
+			jLabel1.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+			jLabel1.setText("Connecting to server...");
 
 			javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
 			getContentPane().setLayout(layout);
-			layout.setHorizontalGroup(layout
-					.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-					.addGroup(
-							layout.createSequentialGroup().addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(quitButton)
+			layout.setHorizontalGroup(
+					layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+							.addGroup(layout.createSequentialGroup()
+									.addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+									.addComponent(jButton1)
 									.addContainerGap())
-					.addGroup(layout.createSequentialGroup().addContainerGap().addComponent(statusInfoLabel).addContainerGap(93, Short.MAX_VALUE)));
-			layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-					javax.swing.GroupLayout.Alignment.TRAILING,
-					layout.createSequentialGroup().addContainerGap(12, Short.MAX_VALUE).addComponent(statusInfoLabel)
-							.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(quitButton).addContainerGap()));
+							.addGroup(layout.createSequentialGroup()
+									.addContainerGap()
+									.addComponent(jLabel1)
+									.addContainerGap(93, Short.MAX_VALUE))
+			);
+			layout.setVerticalGroup(
+					layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+							.addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+									.addContainerGap(12, Short.MAX_VALUE)
+									.addComponent(jLabel1)
+									.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+									.addComponent(jButton1)
+									.addContainerGap())
+			);
 			setLocationRelativeTo(null);
 			pack();
 		}// </editor-fold>
 
-		private javax.swing.JButton quitButton;
-		private javax.swing.JLabel statusInfoLabel;
+		private javax.swing.JButton jButton1;
+		private javax.swing.JLabel jLabel1;
 
 	}
 
