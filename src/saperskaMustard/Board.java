@@ -6,7 +6,7 @@ public class Board {
 
 	public static final int MINE = 10;
 	public static final int FLAG = 9;
-	
+
 	//Board belongs to the client, stores all the necessary information about the board state, the players in the lobby, whose player turn it currently is etc.
 //	also recieves information from the server about which squares have been clicked and which not
 // also has all the methods necessary for setting up the board (i. e. the filling all the empty squares with numbers)
@@ -20,9 +20,9 @@ public class Board {
 	public String currentPlayer;
 	String clientUsername;
 	public TableGUI gui;
-    public boolean hasBegun = false;
+	public boolean hasBegun = false;
 	/*The constructor below is for clients*/
-    public Board( GameInfo info, String clientUsername ) {
+	public Board(GameInfo info, String clientUsername) {
 		this.boardSize = info.getBoardsize();
 		this.usernameOfHost = info.getUsername();
 		numberOfMines = (int) ( Math.pow(boardSize, 2) * 0.18 );
@@ -43,7 +43,7 @@ public class Board {
 		//SquareButton.setUpIcons();
 		squares = new SquareButton[boardSize][boardSize];
 	}
-	
+
 	private ArrayList<Integer> getNeighbours( int i, int j ) {
 
 		ArrayList<Integer> neighbours = new ArrayList<>();
@@ -70,8 +70,7 @@ public class Board {
 
 	public boolean squareExists( int i, int j ) {
 		if ( i < 0 || j < 0 ) return false;
-		if ( i >= boardSize || j >= boardSize ) return false;
-		return true;
+		return !(i >= boardSize || j >= boardSize);
 	}
 
 	public void setUpSquares( boolean[][] mines ) {
@@ -90,9 +89,9 @@ public class Board {
 		}
 
 	}
-	
+
 	public  void gameStart() {
-        hasBegun= true;
+		hasBegun = true;
 		for (SquareButton sB : SquareButton.ALL_SQUAREBUTTONS)
 			sB.setEnabled(true);
 	}

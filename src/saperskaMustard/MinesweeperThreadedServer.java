@@ -56,48 +56,32 @@ public class MinesweeperThreadedServer {
 					try {
 						Object nextObjectInQueue = receivedObjects.take();
 						if ( nextObjectInQueue instanceof String ) {
-							if ( ( (String) nextObjectInQueue ).startsWith("@") ) {     //if the String starts with @ then we know its a new player who wants to join a game
+							//we received chat message:
 
-								String newPlayer = (String) nextObjectInQueue;
-								int index;
-								Game game;
-								do {
-									index = (int) ( Math.random() * OPEN_GAMES.size() ); //we randomize a game for him here
-									game = OPEN_GAMES.get(index);
-								} while ( game.getPlayers().size() >= 4 );
-								System.out.println("It seems like a client has joined an existing game");//we check if the game is already filled
-								if ( game.getPlayers().contains(newPlayer) )
-									newPlayer += "1";  //this line right here gets rid of the awkwardness of having two players with the same username in-game
-								game.getPlayers().add(newPlayer);   //if not, we add him!
-//      	whoooooooooaaaaaaaaaa, we have a problem here: how do we know which dude we are supposed to send the GameInfo to?
-								//i will stop for now.
-							} else {
+							// EXAMPLE CODE OF SENDING CHAT MSG TO ALL USERS IN A SPECIFIC GAME:
+							/*
+							for(int i = 0; i < clientList.size(); i++){
+							 	if(clientList.get(i).getGameIndex() == gameIndex){//gameIndex somehow must be encoded in chat message, should be easy
+									clientList.write(object);
+								}
+							 }
 
-								//We received a chat message
-							}
 
-						} else if ( nextObjectInQueue instanceof GameInfo ) {
-								//We received a request to start a new game from a client
-								GameInfo info = ( (GameInfo) nextObjectInQueue );
-								Game newGame = new Game(info);
-								OPEN_GAMES.add(newGame);
-								System.out.println("w00t we received a request to host a game from a client and server successfully created game");
-							  //////Maybe once we get a game we send the index of the game both in ConnectionToClient and Client.
+		*/
 
-							}
-						  else if(nextObjectInQueue instanceof int[]){//we received click information
+						} else if (nextObjectInQueue instanceof int[]) {//we received click information
 							int[] coordinates = ((int[])(nextObjectInQueue));
-							/*EXAMPLE CODE
-							*
-							* for(int i = 0; i < clientList.size(); i++){
-							* 	if(c.getGameIndex() == gameIndex){
-							* 		sendToOne(i,object);
-							* 	}
-							* }
-							*
-							*
-							*
-							* */
+
+
+							for (int i = 0; i < clientList.size(); i++) {
+								if (clientList.get(i).getGameIndex() == coordinates[2]) {
+									clientList.get(i).write(coordinates);
+								}
+							}
+
+
+
+
 
 						}
 
@@ -138,6 +122,7 @@ public class MinesweeperThreadedServer {
 		ObjectInputStream inputFromClient;
 		ObjectOutputStream outputToClient;
 		Socket socket;
+		private int gameIndex; // keeps track of which game this client belongs to
 
 		public ConnectionToClient( Socket socket ) throws IOException {
 			this.socket = socket;
@@ -155,7 +140,40 @@ public class MinesweeperThreadedServer {
 						try {
 							Object obj = inputFromClient.readObject();
 							System.out.println("An object was read from a client.");
-							receivedObjects.put(obj);
+
+							if (obj instanceof String) {
+								if (((String) obj).startsWith("@")) {
+									String newPlayer = (String) obj;
+									Game game;
+
+									do {
+										ConnectionToClient.this.gameIndex = (int) (Math.random() * OPEN_GAMES.size()); //we randomize a game for him here
+										game = OPEN_GAMES.get(ConnectionToClient.this.gameIndex);
+
+									} while (game.getPlayers().size() >= 4);
+									System.out.println("It seems like a client has joined an existing game");//we check if the game is already filled
+									if (game.getPlayers().contains(newPlayer))
+										newPlayer += "1";  //this line right here gets rid of the awkwardness of having two players with the same username in-game
+									game.getPlayers().add(newPlayer);   //if not, we add him!
+									//we do not add the username to queue since it's not a chat message
+									GameInfo info = new GameInfo(game.usernameOfHost, game.ipOfHost, game.boardSize, gameIndex);
+									outputToClient.writeObject(info);
+								} else {
+									receivedObjects.put(obj);
+									//we received a chat message that we add to the queue that the server handles
+								}
+
+							} else if (obj instanceof GameInfo) {
+								//We received a request to start a new game from a client
+								GameInfo info = ((GameInfo) obj);
+								Game newGame = new Game(info);
+								OPEN_GAMES.add(newGame);
+								ConnectionToClient.this.gameIndex = OPEN_GAMES.size() - 1;
+								System.out.println("w00t we received a request to host a game from a client and server successfully created game");
+								//////Maybe once we get a game we send the index of the game both in ConnectionToClient and Client.
+							} else {
+								receivedObjects.put(obj);
+							}
 						} catch ( IOException e ) {
 							//ConnectionToClient.this.closeConnections();
 						} catch ( ClassNotFoundException e ) {
@@ -170,6 +188,14 @@ public class MinesweeperThreadedServer {
 			handleObjectFromClient.setDaemon(true); // terminate when main ends
 			handleObjectFromClient.start();
 
+		}
+
+		public void setGameIndex(int gameIndex) {
+			this.gameIndex = gameIndex;
+		}
+
+		public int getGameIndex() {
+			return this.gameIndex;
 		}
 
 		public void write( Object obj ) {
@@ -207,7 +233,5 @@ public class MinesweeperThreadedServer {
 	}
 
 }
-
-
 
 

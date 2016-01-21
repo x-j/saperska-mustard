@@ -24,7 +24,7 @@ public class TableGUI extends JFrame {
 	private JLabel statusIcon;
 	private JLabel whosePlayerTurnItIsLabel;
 
-/*The constructor below is used for clients*/
+	/*The constructor below is used for clients*/
 	public TableGUI( GameInfo info,String username , Board board ) {//username will always be username of client, since GameInfo already knows username of host
 
 		this.board = board;
