@@ -99,7 +99,8 @@ public class Client {
                         else if (objectFromServer instanceof int[]) {
                             int[] coordinates = ((int[]) objectFromServer);
                             board.receiveClick(coordinates[0], coordinates[1]);
-                            server.write("[" + clientUsername + " has clicked on (" + coordinates[0] + "," + coordinates[1] + ")]");
+                            table.getChatboxArea().append(board.getCurrentPlayer() + " has clicked the square (" + coordinates[0] + "," + coordinates[1] + ")\n");
+                            table.getWhosePlayerTurnItIsLabel().setText(board.getNextPlayerString() + "'s turn");
 
                         }
 
