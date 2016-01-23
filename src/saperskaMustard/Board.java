@@ -192,7 +192,8 @@ public class Board {
         }
 
     }
-    public void receiveMessage(String s){
+
+    public void receiveMessage(String s) {
 
     }
 

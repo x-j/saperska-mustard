@@ -179,14 +179,14 @@ public class TableGUI extends JFrame {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					String message = ((JTextField) e.getSource()).getText()+"\n";
+					String message = ((JTextField) e.getSource()).getText() + "\n";
 
-                    message = clientUsername + ": " + message;
-                    chatboxMessageField.setText("");
+					message = clientUsername + ": " + message;
+					chatboxMessageField.setText("");
 					board.connection.send(message);
 					//chatboxArea.append(message);//we really dont need the chatbox class I think. just append message to chatboxArea
-                   // chatbox.addMessage(message);
-                    if (message.contains("penis")) statusIcon.setText("( ͡° ͜ʖ ͡°)");
+					// chatbox.addMessage(message);
+					if (message.contains("penis")) statusIcon.setText("( ͡° ͜ʖ ͡°)");
                     if (message.contains("such") && message.contains("and")) {
                         whosePlayerTurnItIsLabel.setText("such");
                         statusIcon.setText("and");
@@ -217,8 +217,8 @@ public class TableGUI extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				startGameButton.setVisible(false);
-                board.connection.send("[" + usernameOfHost + " started the game!]");
-                board.gameStart();
+				board.connection.send("[" + usernameOfHost + " started the game!]");
+				board.gameStart();
                 if (boardSize >= 12)
 					whosePlayerTurnItIsLabel.setText("<html>It's " + board.currentPlayer + "'s turn. </html>");
 				else
@@ -266,6 +266,9 @@ public class TableGUI extends JFrame {
 		}
 
 	}
-	public JTextArea getChatboxArea(){return chatboxArea;}
+
+	public JTextArea getChatboxArea() {
+		return chatboxArea;
+	}
 
 }

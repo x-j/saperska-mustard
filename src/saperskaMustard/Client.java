@@ -75,9 +75,7 @@ public class Client {
                             String message = (String) objectFromServer;
                             table.getChatboxArea().append(message);
 
-                        }
-
-                        else if (objectFromServer instanceof boolean[][]) {
+                        } else if (objectFromServer instanceof boolean[][]) {
                             System.out.println("we received squares yay!!");
                             boolean[][] mines = (boolean[][]) objectFromServer;
                             board.setUpSquares(mines);
@@ -85,7 +83,7 @@ public class Client {
                         } else if (objectFromServer instanceof int[]) {
                             int[] coordinates = ((int[]) objectFromServer);
                             board.receiveClick(coordinates[0], coordinates[1]);
-                            server.write("["+clientUsername+" has clicked on ("+coordinates[0]+","+coordinates[1]+")]");//this is always displayed in the server's GUI, but only sometimes sent to other users in game?
+                            server.write("[" + clientUsername + " has clicked on (" + coordinates[0] + "," + coordinates[1] + ")]");//this is always displayed in the server's GUI, but only sometimes sent to other users in game?
                         }
                         //IF WE RECEIVED A TWODIMENSIONAL ARRAY OF BOOLEANS, WE SET UP OUR SQUARES WITH MINES
 

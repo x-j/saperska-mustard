@@ -184,11 +184,10 @@ public class MinesweeperThreadedServer {
                                 if (signal == USER_DISCONNECTED_SIGNAL) {
                                     //remove user from the game and....
                                     /*Something like this? :*/
-                                    if(!clientIsHost){
+                                    if (!clientIsHost) {
                                         ALL_GAMES.get(gameIndex).removePlayer(usernameOfClient);
-                                    }
-                                    else{
-                                        sGUI.addStatus("A host by the name of "+usernameOfClient+" has disconnected so game is shutting down");
+                                    } else {
+                                        sGUI.addStatus("A host by the name of " + usernameOfClient + " has disconnected so game is shutting down");
                                         ALL_GAMES.remove(gameIndex);
 
                                     }
