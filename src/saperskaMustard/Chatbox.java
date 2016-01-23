@@ -3,6 +3,9 @@ package saperskaMustard;
 import javax.swing.*;
 
 public class Chatbox extends JScrollPane{
+    //public Chatbox(JTextArea chatBoxArea){
+
+   // }
 
     public void addMessage(String message) {
 

@@ -158,8 +158,9 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 		username = username.trim();
 
 		if ( username.length() < 11 ) {
-			if ( username.length() < 2 )
+			 if ( username.length() < 2 )
 				JOptionPane.showMessageDialog(this, "The username must be at least 2 characters long.");
+
 			else if( username.startsWith("@") ) {
 				JOptionPane.showMessageDialog(this, "The username cannot start with '@'.");
 			} else{
