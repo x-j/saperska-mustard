@@ -25,7 +25,7 @@ public class Client {
     private Socket socket;
     private boolean hasAlreadyReceivedGameInfo = false;
     private boolean hasAlreadyReceivedGameIndex = false;
-
+    //private boolean hasAlreadyReceivedSquares = false;
 
     public Client(boolean isHost, String IPAddress, int port, final String clientUsername, int boardSize) throws IOException {
 
@@ -47,7 +47,7 @@ public class Client {
 
             //CLIENT MUST CREATE HIS board in the thread handleObjectsFromServer because we must wait for GameInfo and squares.
             server.write("@" + clientUsername);//after this was sent server must reply with squares[][] from a given game so we know how board looks like
-
+            //hasAlreadyReceivedSquares = false;
             hasAlreadyReceivedGameInfo = false;
             popup = new ConnectionPopup();
         }
@@ -73,10 +73,9 @@ public class Client {
 
                         else if (objectFromServer instanceof String) {//we received a chat message
                             String message = (String) objectFromServer;
-                            table.getChatboxArea().append(message);
-
+                            System.out.println("Message Received: " + message);
                         }
-
+                        //TODO if we receive a String then add it to the Chatbox
                         else if (objectFromServer instanceof boolean[][]) {
                             System.out.println("we received squares yay!!");
                             boolean[][] mines = (boolean[][]) objectFromServer;
@@ -85,7 +84,6 @@ public class Client {
                         } else if (objectFromServer instanceof int[]) {
                             int[] coordinates = ((int[]) objectFromServer);
                             board.receiveClick(coordinates[0], coordinates[1]);
-                            server.write("["+clientUsername+" has clicked on ("+coordinates[0]+","+coordinates[1]+")]");//this is always displayed in the server's GUI, but only sometimes sent to other users in game?
                         }
                         //IF WE RECEIVED A TWODIMENSIONAL ARRAY OF BOOLEANS, WE SET UP OUR SQUARES WITH MINES
 

@@ -146,7 +146,7 @@ public class TheFrameInWhichYouJoinARandomGame extends JFrame {
 				System.out.println("Should be establishing connection with server now.");
 
 				try {
-					Client clientConnection = new Client(false, ip, DEFAULT_PORT, username, -1);//starting server connection as client (joining existing lobby)
+					Client clientConnection = new Client(false, ip, DEFAULT_PORT, username, -1);//starting server connection as client (joing exisitng lobby), boardSize is -1 to indicate that we're not host
 					this.dispose();
 				} catch ( Exception e ) {
 					JOptionPane.showMessageDialog(this, "An error occurred: " + e.getMessage(), "Saperska Mustard", JOptionPane.ERROR_MESSAGE);

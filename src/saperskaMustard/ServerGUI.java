@@ -56,7 +56,7 @@ public class ServerGUI extends javax.swing.JFrame {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     String message = ((JTextField) e.getSource()).getText();
-                    message = "SERVER: " + message;
+                    message = "SERVER> " + message;
                     messageInputField.setText("");
                     server.sendToAll(message);
 

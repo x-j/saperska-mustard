@@ -151,7 +151,7 @@ public class Board {
         // after receiving information from the server about a clicked square,
         // we update our local Board
 
-        //chatbox is updated in Client.java
+        // TODO: UPDATE CHATBOX: A SQUARE HERE WAS CLUCKD
 
         squares[i][j].reveal();
         if (!gameOver) {
@@ -190,9 +190,6 @@ public class Board {
                 }
             }
         }
-
-    }
-    public void receiveMessage(String s){
 
     }
 

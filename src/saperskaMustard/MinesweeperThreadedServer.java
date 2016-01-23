@@ -67,9 +67,9 @@ public class MinesweeperThreadedServer {
         }
     }
 
-    public void status(String status) {//hahahahahahahaha
+    public void status(String status) {
 
-        if (status.contains("Nowiński")) for (int i = 0; i < 500; i++)
+        if (status.contains("Nowinski")) for (int i = 0; i < 500; i++)
             sGUI.addStatus("CLEAR THAT POINT");
         sGUI.addStatus(status);
 
@@ -98,8 +98,6 @@ public class MinesweeperThreadedServer {
         ObjectInputStream inputFromClient;
         ObjectOutputStream outputToClient;
         Socket socket;
-        String usernameOfClient = "";
-        boolean clientIsHost = false;
 
         private int gameIndex; // keeps track of which game this client belongs to
 
@@ -122,9 +120,7 @@ public class MinesweeperThreadedServer {
 
                             if (obj instanceof GameInfo) {
                                 //We received a request to start a new game from a client
-                                clientIsHost = true;
                                 GameInfo info = ((GameInfo) obj);
-                                usernameOfClient = info.getUsernameOfHost();
                                 Game newGame = new Game(info, MinesweeperThreadedServer.this);
                                 INDEXER++;
                                 ALL_GAMES.put(gameIndex, newGame);
@@ -142,7 +138,6 @@ public class MinesweeperThreadedServer {
 
                                     String newPlayer = (String) obj;
                                     newPlayer = newPlayer.substring(1);
-                                    usernameOfClient = newPlayer;
                                     status(newPlayer + " connected to the server!");
                                     Game game;
                                     do {
@@ -157,14 +152,13 @@ public class MinesweeperThreadedServer {
                                     game.addPlayer(newPlayer);   //if not, we add him!
                                     GameInfo info = game.getInfo();
                                     outputToClient.writeObject(info);
-                                    sendToGame("SERVER: " + newPlayer + " connected to this game!", getGameIndex());
+                                    sendToGame("SERVER> " + newPlayer + " connected to this game!", getGameIndex());
                                 }
 
                                 //IF THE STRING DID NOT START WITH '@', THEN ITS A CHAT MESSAGE, SO WE SEND IT TO ALL PLAYERS IN THIS GAME
                                 else {
-                                    sendToGame(obj, getGameIndex());
                                     status((String) obj);
-
+                                    sendToGame(obj, getGameIndex());
                                 }
                             }
 
@@ -176,23 +170,12 @@ public class MinesweeperThreadedServer {
                                 getGame(getGameIndex()).click(coordinates[0], coordinates[1]);
                             }
 
-
                             //IF WE RECEIVED A SINGLE INT, THEN IT WAS SOME SORT OF "SIGNAL", SO WE HANDLE IT APPROPIATELY:
                             else if (obj instanceof Integer) {
 
                                 int signal = (int) obj;
                                 if (signal == USER_DISCONNECTED_SIGNAL) {
                                     //remove user from the game and....
-                                    /*Something like this? :*/
-                                    if(!clientIsHost){
-                                        ALL_GAMES.get(gameIndex).removePlayer(usernameOfClient);
-                                    }
-                                    else{
-                                        sGUI.addStatus("A host by the name of "+usernameOfClient+" has disconnected so game is shutting down");
-                                        ALL_GAMES.remove(gameIndex);
-
-                                    }
-
                                 }
                             }
 

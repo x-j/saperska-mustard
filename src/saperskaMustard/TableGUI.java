@@ -63,7 +63,6 @@ public class TableGUI extends JFrame {
 				String ObjButtons[] = { "Yes", "No" };
 				int PromptResult = JOptionPane.showOptionDialog(null, "Are you sure you want to exit?", "Saperska Mustard", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, ObjButtons, ObjButtons[1]);
 				if (PromptResult == JOptionPane.YES_OPTION) {
-					board.connection.send(2);//sending USER_DISCONNECTED_SIGNAL so server will can tell others that one has disconnected
 					System.exit(0);
 				}
 			}
@@ -179,13 +178,11 @@ public class TableGUI extends JFrame {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					String message = ((JTextField) e.getSource()).getText()+"\n";
+					String message = ((JTextField) e.getSource()).getText();
 
-                    message = clientUsername + ": " + message;
+                    message = clientUsername + "> " + message;
                     chatboxMessageField.setText("");
-					board.connection.send(message);
-					//chatboxArea.append(message);//we really dont need the chatbox class I think. just append message to chatboxArea
-                   // chatbox.addMessage(message);
+                    chatbox.addMessage(message);
                     if (message.contains("penis")) statusIcon.setText("( ͡° ͜ʖ ͡°)");
                     if (message.contains("such") && message.contains("and")) {
                         whosePlayerTurnItIsLabel.setText("such");
@@ -217,7 +214,7 @@ public class TableGUI extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				startGameButton.setVisible(false);
-                board.connection.send("[" + usernameOfHost + " started the game!]");
+                chatbox.addMessage("[" + usernameOfHost + " started the game!]");
                 board.gameStart();
                 if (boardSize >= 12)
 					whosePlayerTurnItIsLabel.setText("<html>It's " + board.currentPlayer + "'s turn. </html>");
@@ -266,6 +263,5 @@ public class TableGUI extends JFrame {
 		}
 
 	}
-	public JTextArea getChatboxArea(){return chatboxArea;}
 
 }
