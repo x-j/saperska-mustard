@@ -3,96 +3,109 @@ package saperskaMustard;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
+import java.util.InvalidPropertiesFormatException;
+import java.util.Properties;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Client {
 
-    boolean isHost;
-    ObjectInputStream inputFromServer;
-    ObjectOutputStream outputToServer;
+    public static final Object DISCONNECT_SIGNAL = 2;
     GameInfo info;
     Board board;
     TableGUI table;
+    private int port; //will be read from config.xml file.
 
     private ConnectionPopup popup;
 
     private ConnectionToServer server;
     private LinkedBlockingQueue<Object> objectsReceivedFromServer;
     private Socket socket;
-    private boolean hasAlreadyReceivedGameInfo = false;
-    private boolean hasAlreadyReceivedGameIndex = false;
+    private boolean hasGameInfo = false;
 
+    public Client(boolean isHost, String IPAddress, final String clientUsername, int boardSize) throws IOException {
 
-    public Client(boolean isHost, String IPAddress, int port, final String clientUsername, int boardSize) throws IOException {
+        readConfig();   //reads info from the config.xml file.
 
+        //we establish a connection with the server:
         socket = new Socket(IPAddress, port);
         objectsReceivedFromServer = new LinkedBlockingQueue<>();
         server = new ConnectionToServer(socket);
 
         if (isHost) {
 
+            //if we're the host, we are the ones who create new GameInfo
             info = new GameInfo(clientUsername, IPAddress, boardSize);
-            board = new Board(info, this); // DONE: added new Board constructor for hosts
-            table = new TableGUI(info, board);//DONE: added new TableGUI constructor for hosts
-            server.write(info);//sending server information about game
-            hasAlreadyReceivedGameInfo = true;//true since server does not need to send GameInfo to us again. host creates his own GameInfo
-            //as players join lobby, we must add players to the arraylist of players in Board.java, and somehow update tableGUI
+            board = new Board(info, clientUsername, this, true);
+            table = new TableGUI(info, clientUsername, board, true);
+            //sending the info to the server, also means that a new Game will start on the server
+            server.write(info);
+            hasGameInfo = true; //becomes true, because we obviosly already created the Board and tableGUI
 
-            //waiting for squares[][] array to be sent from server
         } else {
 
-            //CLIENT MUST CREATE HIS board in the thread handleObjectsFromServer because we must wait for GameInfo and squares.
-            server.write("@" + clientUsername);//after this was sent server must reply with squares[][] from a given game so we know how board looks like
+            //if we're not the host, we have to send our username (with @ at the beginning) this
+            // this is equivalent with asking the server for a suitable game for us to join.
+            server.write("@" + clientUsername);
 
-            hasAlreadyReceivedGameInfo = false;
+            //as we wait to connect to the server, we show a popup that tells us that we're waiting.
             popup = new ConnectionPopup();
         }
 
+        //after sending the initial info to the server, we run a thread which will handle objects received
+
         Thread handleObjectsFromServer = new Thread() {
             public void run() {
+
                 while (true) {
+
                     try {
                         Object objectFromServer = objectsReceivedFromServer.take();
-                        if (objectFromServer instanceof GameInfo && hasAlreadyReceivedGameInfo == false) {
-                            popup.dispose();
+
+                        //if we receive GameInfo for the first time fime from the server, we use it to create ourselves a Board and GUI
+                        if (objectFromServer instanceof GameInfo && hasGameInfo == false) {
+
+                            popup.dispose();    //get rid of the popup
+
                             info = ((GameInfo) objectFromServer);
-                            hasAlreadyReceivedGameInfo = true;
-                            board = new Board(info, clientUsername, Client.this);
-                            JOptionPane.showMessageDialog(null, "bsize: " + info.getBoardSize(), "Saperska Mustard", JOptionPane.INFORMATION_MESSAGE);
-                            table = new TableGUI(info, clientUsername, board);
+                            hasGameInfo = true;
+
+                            //create new Board and GUI using the GameInfo
+                            board = new Board(info, clientUsername, Client.this, false);
+                            table = new TableGUI(info, clientUsername, board, false);
 
                         }
-                        //otherwise, IF WE ALREADY HAVE RECIEVED INFO, WE UPDATE OUR BOARD.
 
-                        else if (objectFromServer instanceof GameInfo && hasAlreadyReceivedGameInfo == true)
+                        //otherwise, IF WE ALREADY HAVE RECEIVED INFO, WE UPDATE OUR BOARD.
+                        //because it means a new player has joined/left the Game
+                        else if (objectFromServer instanceof GameInfo && hasGameInfo == true)
                             board.updateBoard((GameInfo) objectFromServer);
 
-                        else if (objectFromServer instanceof String) {//we received a chat message
+                            //if we receive a String from the server, then we know its a new chat message, so we add it to the chatbox
+                        else if (objectFromServer instanceof String) {
                             String message = (String) objectFromServer;
-                            table.getChatboxArea().append(message);
+                            table.getChatboxArea().append(message + "\n");
+                        }
 
-                        } else if (objectFromServer instanceof boolean[][]) {
-                            System.out.println("we received squares yay!!");
+                        //if we receive a twodimensional aray of booleans, we setUp our mines and create buttons.
+                        else if (objectFromServer instanceof boolean[][]) {
                             boolean[][] mines = (boolean[][]) objectFromServer;
                             board.setUpSquares(mines);
 
-                        } else if (objectFromServer instanceof int[]) {
+                        }
+
+                        //if we received an array of ints, it means these are coordinates, so we click using them.
+                        else if (objectFromServer instanceof int[]) {
                             int[] coordinates = ((int[]) objectFromServer);
                             board.receiveClick(coordinates[0], coordinates[1]);
-                            server.write("[" + clientUsername + " has clicked on (" + coordinates[0] + "," + coordinates[1] + ")]");//this is always displayed in the server's GUI, but only sometimes sent to other users in game?
-                        }
-                        //IF WE RECEIVED A TWODIMENSIONAL ARRAY OF BOOLEANS, WE SET UP OUR SQUARES WITH MINES
+                            server.write("[" + clientUsername + " has clicked on (" + coordinates[0] + "," + coordinates[1] + ")]");
 
-                        //IF WE RECEIVED INFO ABOUT THE GAME ITSELF FOR THE FIRST TIME, THEN MAKE A NEW BOARD AND GUI:
-                        //(BECAUSE IT MEANS WE'RE A NEW PLAYER)
+                        }
 
                     } catch (InterruptedException e) {
                         JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Saperska Mustard", JOptionPane.ERROR_MESSAGE);
-                        server.closeConnections();//close client's connections with server since something fucked up
+                        server.closeConnections();//close client's connections with server since something is wrong
                     }
 
                 }
@@ -103,22 +116,40 @@ public class Client {
         handleObjectsFromServer.start();
     }
 
+    private void readConfig() {
+        Properties props = new Properties();
+        FileInputStream fis;
+        try {
+            fis = new FileInputStream("config.xml");
+            props.loadFromXML(fis);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (InvalidPropertiesFormatException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        this.port = Integer.parseInt(props.getProperty("port"));
+
+    } //reads config.xml file
+
     public void send(Object obj) {
         server.write(obj);
     }
 
     public void disconnect() {
-
+        //if we want to disconnect from the server, we have to send a signal, so that the server can remove us from list of clients
+        send(DISCONNECT_SIGNAL);
         server.closeConnections();
-
     }
 
     private class ConnectionToServer {
 
-        ObjectInputStream inputFromServer;
+        //establishes a connection to the server.
 
-        ObjectOutputStream outputToServer;
-        Socket socket;
+        private ObjectInputStream inputFromServer;
+        private ObjectOutputStream outputToServer;
+        private Socket socket;
 
         public ConnectionToServer(Socket socket) throws IOException {
             this.socket = socket;
@@ -147,14 +178,10 @@ public class Client {
                         }
                     }
                 }
-            };
+            };  //THIS THREAD GETS NEW OBJECTS FROM SERVER AND ADDS THEM TO OUR QUEUE.
 
             addReceivedObjectsFromServerToQueue.setDaemon(true);
             addReceivedObjectsFromServerToQueue.start();
-        }
-
-        public ConnectionToServer getServer() {
-            return server;
         }
 
         private void write(Object obj) {
@@ -162,7 +189,6 @@ public class Client {
                 outputToServer.writeObject(obj);
             } catch (IOException e) {
                 e.printStackTrace();
-                //this.closeConnections();
             }
         }
 
@@ -171,7 +197,7 @@ public class Client {
                 inputFromServer.close();
                 outputToServer.close();
                 socket.close();
-                board.gui.dispose();
+                board.getGui().dispose();
                 MainMenu.run();
                 System.out.println("We closed the client-side i/o streams and socket, most likely due to server shutdown/disconnect");
             } catch (IOException e) {
@@ -263,10 +289,9 @@ public class Client {
             pack();
         }// </editor-fold>
 
-    }
+    }   //this small GUI object tells us that we're waiting to join a game.
 
 }
-
 
 
 
