@@ -4,85 +4,109 @@ import java.util.ArrayList;
 
 public class Game {
 
-	//this class sits on the server, contains all the neccesary information about the game in progress
+    //this class sits on the server, contains all the neccesary information about the game in progress
 //	also has the chatbox history, catches new messages and sends them to all users
 //	also sends information to new players connecting to the lobby
 
-	int numberOfMines;
-	public boolean firstClickHappened = false;
-	public int gameID;
-	private GameInfo info;
-	private boolean isOpen;
-	//public static ArrayList<Game> ALL_GAMES = new ArrayList<>(); /*number of games is already tracked by the server*/
+    public boolean firstClickHappened = false;
+    boolean[][] mines;
+    MinesweeperThreadedServer server;
+    private int numberOfMines;
+    private int gameIndex;
+    private GameInfo info;
+    private boolean isOpen;
 
-	boolean [][] mines;
+    public Game(GameInfo info, MinesweeperThreadedServer server) {
+        this.server = server;
+        this.info = info;
+        this.gameIndex = MinesweeperThreadedServer.INDEXER; //server already adds games to an array list, this is redundant
+        numberOfMines = (int) (Math.pow(getBoardSize(), 2) * 0.18);
+        mines = new boolean[getBoardSize()][getBoardSize()];
+        isOpen = true;
+        info.setGameIndex(gameIndex);
+    }
 
-	public Game( GameInfo info ) {
-		this.info = info;
-		this.gameID = 0000 + MinesweeperThreadedServer.OPEN_GAMES.size(); //server already adds games to an array list, this is redundant
-		numberOfMines = (int) ( Math.pow(info.getBoardSize(), 2) * 0.18 );
-		mines = new boolean[info.getBoardSize()][info.getBoardSize()];
-		isOpen = true;
+    public void click(int i, int j) {   //this method will be called from some outer class, ints i, j come from the user
+// it sets up the mines if there arent any, and then shares the information about a makeClick with other players
+        if (!firstClickHappened) {
+            firstClickHappened = true;
+            //sets up the mines here.
+            for (int iterator = 0; iterator < numberOfMines; iterator++) {
+                int rand1;
+                int rand2;
+                do {
+                    rand1 = (int) (Math.random() * info.getBoardSize());
+                    rand2 = (int) (Math.random() * info.getBoardSize());
+                } while (mines[rand1][rand2] == true || (rand1 == i && rand2 == j));
 
-	}
+                mines[rand1][rand2] = true;
+            }
 
-	public void click( int i, int j ) {   //this method will be called from some outer class, ints i, j come from the user
-// it sets up the mines if there arent any, and then shares the information about a click with other players
+            server.sendToGame(mines, gameIndex);
 
-		if ( !firstClickHappened ) {
+        }
 
-			//sets up the mines here.
-			for ( int iterator = 0; iterator < numberOfMines; iterator++ ) {
-				int rand1;
-				int rand2;
-				do {
-					rand1 = (int) ( Math.random() * info.getBoardSize() );
-					rand2 = (int) ( Math.random() * info.getBoardSize() );
-				} while ( mines[rand1][rand2] == true || ( rand1 == i && rand2 == j ) );
+        int[] coordinates = {i, j};
+        server.sendToGame(coordinates, gameIndex);
 
-				mines[rand1][rand2] = true;
-			}
-
-			//DEAR FILIP
-			//TODO the game is supposed to now send the array mines to all players.
-			//the client, upon receiving this array, will activate the createSquares method in class Board
-			//resulting in a filled board. clear that point?
-
-		}
-
-		//TODO now, send to information about which square was clicked (so i, j) to all players
-		//clients upon receiving these two integers (or put them in an array of size 2, whichever works better)
-		//will update their Board via the receiveClick method in class Board
+        //clients upon receiving these two integers (or put them in an array of size 2, whichever works better)
+        //will update their Board via the receiveClick method in class Board
 
 
-	}
+    }
 
-	public ArrayList<String> getPlayers() {
-		return info.getPlayers();
-	}
+    public void addPlayer(String usernameOfPlayer) {
 
-	public String getIpOfHost() {
-		return info.getIpAddress();
-	}
+        System.out.println("a player: " + usernameOfPlayer + " connected to game " + getIndex());
+        info.getPlayers().add(usernameOfPlayer);
+        if (info.getPlayers().size() == 4) {
+            isOpen = false;
+            System.out.println("A game of index " + getIndex() + " was filled.");
+        }
 
-	public String getUsernameOfHost(){
-		return info.getUsernameOfHost();
-	}
-	
-	public int getBoardSize(){
-		return info.getBoardSize();
-	}
+    }
 
-	public GameInfo getInfo() {
-		return info;
-	}
+    public void removePlayer(String usernameOfPlayer) {
 
-	public boolean isOpen() {
-		return isOpen;
-	}
+        System.out.println("removing " + usernameOfPlayer + " from game " + getIndex());
+        getPlayers().remove(usernameOfPlayer);
+        isOpen = true;
+        if (getPlayers().size() == 0) {
+            System.out.println("all players left game " + getIndex());
+        }
 
-	public void setOpen(boolean isOpen) {
-		this.isOpen = isOpen;
-	}
-	
+
+    }
+
+    public ArrayList<String> getPlayers() {
+        return info.getPlayers();
+    }
+
+    public String getIpOfHost() {
+        return info.getIpAddress();
+    }
+
+    public String getUsernameOfHost() {
+        return info.getUsernameOfHost();
+    }
+
+    public int getBoardSize() {
+        return info.getBoardSize();
+    }
+
+    public GameInfo getInfo() {
+        return info;
+    }
+
+    public boolean isOpen() {
+        return isOpen;
+    }
+
+    public void setOpen(boolean isOpen) {
+        this.isOpen = isOpen;
+    }
+
+    public int getIndex() {
+        return info.getGameIndex();
+    }
 }

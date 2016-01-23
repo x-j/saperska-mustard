@@ -7,10 +7,41 @@ import javax.swing.*;
 public class MainMenu extends JFrame {
 
 	//the GUI of the Main Menu. the further Panels are opened from here.
-//	one can also find out who the creators of this application are
+	//	one can also find out who the creators of this application are
+
+	private JLabel bragLabel;
+	private JLabel greetings;
+	private JButton menuExitGameButton;
+	private JButton menuJoinRandGameButton;
+	private JButton menuNewGameButton;
 
 	public MainMenu() {
 		initComponents();
+	}
+
+	public static void run() {
+		try {
+			for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+				if ("Nimbus".equals(info.getName())) {
+					UIManager.setLookAndFeel(info.getClassName());
+					break;
+				}
+			}
+		} catch (ClassNotFoundException ex) {
+			java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+		} catch (InstantiationException ex) {
+			java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+		} catch (IllegalAccessException ex) {
+			java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+		} catch (UnsupportedLookAndFeelException ex) {
+			java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+		}
+
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				new MainMenu().setVisible(true);
+			}
+		});
 	}
 
 	private void initComponents() {
@@ -92,9 +123,7 @@ public class MainMenu extends JFrame {
 	}
 
 	private void menuExitGameButtonActionPerformed( java.awt.event.ActionEvent evt ) {
-
 		System.exit(0);
-
 	}
 
 	private void menuJoinRandGameButtonActionPerformed( java.awt.event.ActionEvent evt ) {
@@ -112,35 +141,4 @@ public class MainMenu extends JFrame {
 		this.dispose();
 
 	}
-
-	public static void run() {
-		try {
-			for ( UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels() ) {
-				if ( "Nimbus".equals(info.getName()) ) {
-					UIManager.setLookAndFeel(info.getClassName());
-					break;
-				}
-			}
-		} catch ( ClassNotFoundException ex ) {
-			java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		} catch ( InstantiationException ex ) {
-			java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		} catch ( IllegalAccessException ex ) {
-			java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		} catch ( UnsupportedLookAndFeelException ex ) {
-			java.util.logging.Logger.getLogger(MainMenu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		}
-
-		java.awt.EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				new MainMenu().setVisible(true);
-			}
-		});
-	}
-
-	private JLabel bragLabel;
-	private JLabel greetings;
-	private JButton menuExitGameButton;
-	private JButton menuJoinRandGameButton;
-	private JButton menuNewGameButton;
 }

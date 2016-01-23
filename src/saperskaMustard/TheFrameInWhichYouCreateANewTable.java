@@ -11,13 +11,20 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 
 	//whoops, this class will get recreated any second now
 
-	String username;
-	int boardSize;
 	public final static int DEFAULT_PORT = 5000;
 	final private static String DEFAULT_USERNAME_FIELD_TEXT = "TEST";
 	public static String DEFAULT_IP_ADDRESS;
-
-
+	String username;
+	int boardSize;
+	private JTextField theIpField = new JTextField();
+	private JButton createTableButton;
+	private JButton backToMMButton;
+	private JLabel ipLabel;
+	private JTextField theFieldInWhichYouInputYourUsername;
+	private JLabel usernameLabel;
+	private JLabel sizeLabel;
+	private JTextField textField;
+	private JSpinner spinner;
 	public TheFrameInWhichYouCreateANewTable() {
 		setPreferredSize(new Dimension(230, 260));
 		setResizable(false);
@@ -151,8 +158,9 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 		username = username.trim();
 
 		if ( username.length() < 11 ) {
-			if ( username.length() < 2 )
+			 if ( username.length() < 2 )
 				JOptionPane.showMessageDialog(this, "The username must be at least 2 characters long.");
+
 			else if( username.startsWith("@") ) {
 				JOptionPane.showMessageDialog(this, "The username cannot start with '@'.");
 			} else{
@@ -160,10 +168,6 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 				System.out.println("The birth of a new table begins now.");
 				System.out.println("Should be establishing connection with server now.");
 
-				//and sending to the server boardSize, and username of host
-				//and an ip address?
-				//Board board = new Board(boardSize, username, username);
-				//TableGUI table = new TableGUI(username, boardSize, board);
 				try {
 					Client hostConnection = new Client(true, ip, DEFAULT_PORT, username, boardSize);//starting server connection as host (new lobby)
 					this.dispose();
@@ -217,14 +221,4 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 			}
 		});
 	}
-
-	private JTextField theIpField = new JTextField();
-	private JButton createTableButton;
-	private JButton backToMMButton;
-	private JLabel ipLabel;
-	private JTextField theFieldInWhichYouInputYourUsername;
-	private JLabel usernameLabel;
-	private JLabel sizeLabel;
-	private JTextField textField;
-	private JSpinner spinner;
 }

@@ -8,19 +8,18 @@ import java.awt.event.*;
 public class TableGUI extends JFrame {
 
 	final String usernameOfHost;
-	int boardSize;
-	Chatbox chatbox = new Chatbox();
+    public JLabel minesLeftLabel;
+    public JLabel statusIcon;
+    int boardSize;
+    Chatbox chatbox = new Chatbox();
 	Board board;
 	String clientUsername;
 	int counterOfMinesLeft;
-
 	private JPanel boardPanel;
 	private JTextArea chatboxArea;
 	private JTextField chatboxMessageField;
-	public JLabel minesLeftLabel;
 	private JButton quitToMMButton;
 	private JButton startGameButton;
-	public JLabel statusIcon;
 	private JLabel whosePlayerTurnItIsLabel;
 
 	/* The constructor below is used for clients */
@@ -33,13 +32,14 @@ public class TableGUI extends JFrame {
 		this.boardSize = info.getBoardSize();
 		counterOfMinesLeft = board.numberOfMines;
 
-		startGUI();
+        startGUI();
+        startGameButton.setVisible(false);
 
 	}
 
 	/************* The constructor below is only used for hosts! ******************/
 
-	public TableGUI(GameInfo info, Board board) {// both clientUsername and hostUsername are the same, I think that's ok for now?
+    public TableGUI(GameInfo info, Board board) {
 
 		this.board = board;
 		board.gui = this;
@@ -48,7 +48,8 @@ public class TableGUI extends JFrame {
 		this.boardSize = info.getBoardSize();
 		counterOfMinesLeft = board.numberOfMines;
 
-		startGUI();
+        startGUI();
+        startGameButton.setVisible(true);
 
 	}
 
@@ -56,13 +57,13 @@ public class TableGUI extends JFrame {
 		setTitle("Saperska Mustard - " + usernameOfHost + "'s room");
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		addWindowListener(new WindowAdapter() { // this block adds the exit
-			// prompt
-			public void windowClosing(WindowEvent we) {
+        addWindowListener(new WindowAdapter() { // this block adds the exit prompt
+            public void windowClosing(WindowEvent we) {
 
 				String ObjButtons[] = { "Yes", "No" };
 				int PromptResult = JOptionPane.showOptionDialog(null, "Are you sure you want to exit?", "Saperska Mustard", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, ObjButtons, ObjButtons[1]);
 				if (PromptResult == JOptionPane.YES_OPTION) {
+					board.connection.send(2);//sending USER_DISCONNECTED_SIGNAL so server will can tell others that one has disconnected
 					System.exit(0);
 				}
 			}
@@ -178,12 +179,22 @@ public class TableGUI extends JFrame {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					String message = ((JTextField) e.getSource()).getText();
-					message = clientUsername + "> " + message;
-					chatboxMessageField.setText("");
-					chatbox.sendMessage(message);
-				}
-			}
+					String message = ((JTextField) e.getSource()).getText()+"\n";
+
+                    message = clientUsername + ": " + message;
+                    chatboxMessageField.setText("");
+					board.connection.send(message);
+					//chatboxArea.append(message);//we really dont need the chatbox class I think. just append message to chatboxArea
+                   // chatbox.addMessage(message);
+                    if (message.contains("penis")) statusIcon.setText("( ͡° ͜ʖ ͡°)");
+                    if (message.contains("such") && message.contains("and")) {
+                        whosePlayerTurnItIsLabel.setText("such");
+                        statusIcon.setText("and");
+                        minesLeftLabel.setText("such");
+                    }
+
+                }
+            }
 		}); // catches messages sent through the chat box and sends them to the
 			// Chatbox class
 
@@ -195,9 +206,9 @@ public class TableGUI extends JFrame {
 				String ObjButtons[] = { "Yes", "No" };
 				int PromptResult = JOptionPane.showOptionDialog(null, "Are you sure you want to quit to main menu?", "Saperska Mustard", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, ObjButtons, ObjButtons[1]);
 				if (PromptResult == JOptionPane.YES_OPTION) {
-					MainMenu.run();
-					dispose();
-				}
+                    board.connection.disconnect();
+                    dispose();
+                }
 			}
 		}); // this block adds the exit prompt
 
@@ -206,9 +217,9 @@ public class TableGUI extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				startGameButton.setVisible(false);
-				chatbox.sendMessage("[" + usernameOfHost + " started the game!]");
-				board.gameStart();
-				if (boardSize >= 12)
+                board.connection.send("[" + usernameOfHost + " started the game!]");
+                board.gameStart();
+                if (boardSize >= 12)
 					whosePlayerTurnItIsLabel.setText("<html>It's " + board.currentPlayer + "'s turn. </html>");
 				else
 					whosePlayerTurnItIsLabel.setText("<html>" + board.currentPlayer + "'s turn. </html>");
@@ -255,5 +266,6 @@ public class TableGUI extends JFrame {
 		}
 
 	}
+	public JTextArea getChatboxArea(){return chatboxArea;}
 
 }
