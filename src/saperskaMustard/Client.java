@@ -39,6 +39,7 @@ public class Client {
             info = new GameInfo(clientUsername, IPAddress, boardSize);
             board = new Board(info, clientUsername, this, true);
             table = new TableGUI(info, clientUsername, board, true);
+            table.getWhosePlayerTurnItIsLabel().setText("Waiting for game start");
             //sending the info to the server, also means that a new Game will start on the server
             server.write(info);
             hasGameInfo = true; //becomes true, because we obviosly already created the Board and tableGUI
@@ -47,9 +48,10 @@ public class Client {
 
             //if we're not the host, we have to send our username (with @ at the beginning) this
             // this is equivalent with asking the server for a suitable game for us to join.
-            server.write("@" + clientUsername);
+
 
             //as we wait to connect to the server, we show a popup that tells us that we're waiting.
+            server.write("@" + clientUsername);
             popup = new ConnectionPopup();
         }
 
@@ -63,7 +65,7 @@ public class Client {
                     try {
                         Object objectFromServer = objectsReceivedFromServer.take();
 
-                        //if we receive GameInfo for the first time fime from the server, we use it to create ourselves a Board and GUI
+                        //if we receive GameInfo for the first time  from the server, we use it to create ourselves a Board and GUI
                         if (objectFromServer instanceof GameInfo && hasGameInfo == false) {
 
                             popup.dispose();    //get rid of the popup
@@ -72,17 +74,24 @@ public class Client {
                             hasGameInfo = true;
 
                             //create new Board and GUI using the GameInfo
+                            System.out.println("Players in gameInfo that " + clientUsername + " received: ");
+                            System.out.println(info.getPlayers());
                             board = new Board(info, clientUsername, Client.this, false);
                             table = new TableGUI(info, clientUsername, board, false);
+                            table.getWhosePlayerTurnItIsLabel().setText("Waiting for host");
 
                         }
 
                         //otherwise, IF WE ALREADY HAVE RECEIVED INFO, WE UPDATE OUR BOARD.
                         //because it means a new player has joined/left the Game
-                        else if (objectFromServer instanceof GameInfo && hasGameInfo == true)
+                        else if (objectFromServer instanceof GameInfo && hasGameInfo == true) {
+                            System.out.println("The client " + clientUsername + " will update his board with the following players: ");
+                            System.out.println(((GameInfo) objectFromServer).getPlayers());
                             board.updateBoard((GameInfo) objectFromServer);
+                        }
 
-                            //if we receive a String from the server, then we know its a new chat message, so we add it to the chatbox
+
+                        //if we receive a String from the server, then we know its a new chat message, so we add it to the chatbox
                         else if (objectFromServer instanceof String) {
                             String message = (String) objectFromServer;
                             table.getChatboxArea().append(message + "\n");
@@ -98,9 +107,10 @@ public class Client {
                         //if we received an array of ints, it means these are coordinates, so we click using them.
                         else if (objectFromServer instanceof int[]) {
                             int[] coordinates = ((int[]) objectFromServer);
-                            board.receiveClick(coordinates[0], coordinates[1]);
                             table.getChatboxArea().append(board.getCurrentPlayer() + " has clicked the square (" + coordinates[0] + "," + coordinates[1] + ")\n");
-                            table.getWhosePlayerTurnItIsLabel().setText(board.getNextPlayerString() + "'s turn");
+                            board.receiveClick(coordinates[0], coordinates[1]);
+
+                            table.getWhosePlayerTurnItIsLabel().setText(board.getCurrentPlayer() + "'s turn");
 
                         }
 

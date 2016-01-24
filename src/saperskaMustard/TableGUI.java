@@ -119,7 +119,7 @@ public class TableGUI extends JFrame {
 
                 if (!board.isGameOver()) {
                     String ObjButtons[] = {"Yes", "No"};
-                    int PromptResult = JOptionPane.showOptionDialog(null, "Are you sure you want to quit to main menu?", "Saperska Mustard", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, ObjButtons, ObjButtons[1]);
+                    int PromptResult = JOptionPane.showOptionDialog(null, "Are you sure you want to quit to main menu?", "Multiplayer Minesweeper", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, ObjButtons, ObjButtons[1]);
                     if (PromptResult == JOptionPane.YES_OPTION) {
                         board.getConnection().disconnect();
                         dispose();

@@ -28,12 +28,13 @@ public class ServerGUI extends javax.swing.JFrame {
         addActionListeners();
         setVisible(true);
         setResizable(false);
-        setTitle("Saperska Mustard server");
+        setTitle("Multiplayer Minesweeper server");
         setLocationRelativeTo(null);
     }
 
     private void initComponents() {
         add(mainPanel);
+        clientsConnectedLabel = new JLabel();
         pack();
     }
 

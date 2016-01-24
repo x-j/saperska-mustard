@@ -27,14 +27,14 @@ public class Board {
     private int currentPlayerIndex;
 
     public Board(GameInfo info, String username, Client client, boolean isHost) {
-        currentPlayerIndex = 0;
+        this.currentPlayerIndex = 0;
         this.connection = client;
         this.boardSize = info.getBoardSize();
         this.usernameOfHost = info.getUsernameOfHost();
         numberOfMines = (int) (Math.pow(boardSize, 2) * 0.18);
         currentPlayer = usernameOfHost;
         this.clientUsername = username;
-        players.add(clientUsername);
+        this.players = info.getPlayers();
         squares = new SquareButton[boardSize][boardSize];
         SquareButton.setUpIcons();
     }
@@ -106,11 +106,12 @@ public class Board {
     public void gameStart() {
         //ALL THIS METHOD DOES IS ENABLE THE SQUARES
         if (!hasBegun) {
+            gui.getWhosePlayerTurnItIsLabel().setText(usernameOfHost + "'s turn");
             hasBegun = true;
             for (SquareButton sB : SquareButton.ALL_SQUAREBUTTONS)
                 sB.setEnabled(true);
         }
-    } //enables the buttons, get called afterwe set up the squares.
+    } //enables the buttons, get called after we set up the squares.
 
     public void notYourTurn() {
         for (SquareButton sB : SquareButton.ALL_SQUAREBUTTONS)
@@ -137,11 +138,14 @@ public class Board {
 
         squares[i][j].reveal();
         if (!gameOver) {
+            System.out.println("The client: " + clientUsername + " has the following players in his array list: ");
+            for (String s : players)
+                System.out.println(s);
 
-            this.currentPlayerIndex = players.indexOf(currentPlayer);
             currentPlayerIndex++;
             currentPlayerIndex %= players.size();
             currentPlayer = players.get(currentPlayerIndex);
+
             if (currentPlayer.equals(clientUsername))
                 yourTurn();
             else

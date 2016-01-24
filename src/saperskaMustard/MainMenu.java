@@ -53,7 +53,7 @@ public class MainMenu extends JFrame {
         bragLabel = new JLabel();
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Saperska Mustard");
+        setTitle("Multiplayer Minesweeper");
         setResizable(false);
 
         menuExitGameButton.setFont(new java.awt.Font("Tahoma", 0, 14));
@@ -81,7 +81,7 @@ public class MainMenu extends JFrame {
         });
 
         greetings.setFont(new java.awt.Font("Tahoma", 1, 12));
-        greetings.setText("Welcome to Saperska Mustard!");
+        greetings.setText("Welcome to Multiplayer Minesweeper!");
 
         bragLabel.setFont(new java.awt.Font("Tahoma", 0, 10));
         bragLabel.setHorizontalAlignment(SwingConstants.RIGHT);
