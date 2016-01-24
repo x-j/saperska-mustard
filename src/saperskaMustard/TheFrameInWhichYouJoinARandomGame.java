@@ -138,6 +138,9 @@ public class TheFrameInWhichYouJoinARandomGame extends JFrame {
     private void joinGameButtonActionPerformed(java.awt.event.ActionEvent evt) {
 
         //watch out, this event handles joining to an already existing Game.
+        //We cannot join a random game if no games are open at the moment, so we return to the main  menu
+        System.out.println("Number of games on server: " + MinesweeperThreadedServer.ALL_GAMES.size());//for some reason this is always 0 no matter how many games are created
+
 
         String ip = theIpField.getText();
         username = theFieldInWhichYouInputYourUsername.getText();
@@ -162,6 +165,8 @@ public class TheFrameInWhichYouJoinARandomGame extends JFrame {
             }
         } else
             JOptionPane.showMessageDialog(this, "The username must be at most 10 characters long.");
+
+
     }
 
     public void start() {

@@ -18,6 +18,7 @@ public class Game {
     public Game(GameInfo info) {
         this.info = info;
         this.gameIndex = MinesweeperThreadedServer.INDEXER++;
+        System.out.println("Value of INDEXER: " + MinesweeperThreadedServer.INDEXER);
         numberOfMines = (int) (Math.pow(getBoardSize(), 2) * 0.18);
         mines = new boolean[getBoardSize()][getBoardSize()];
         isOpen = true;
