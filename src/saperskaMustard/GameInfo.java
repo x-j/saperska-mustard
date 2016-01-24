@@ -9,7 +9,7 @@ public class GameInfo implements Serializable {
     private String ipAddressOfHost;
     private ArrayList<String> playerList = new ArrayList<>();
     private int boardSize;
-    private int gameIndex;
+    private int gameIndex = -1;
 
     public GameInfo(String userOfHost, String ip, int boardSize) {
         this.usernameOfHost = userOfHost;
@@ -29,7 +29,7 @@ public class GameInfo implements Serializable {
     }
 
     public void setGameIndex(int gameIdx) {
-        gameIndex = gameIdx;
+        this.gameIndex = gameIdx;
     }
 
     public String getIpAddress() {
@@ -43,4 +43,14 @@ public class GameInfo implements Serializable {
     public ArrayList<String> getPlayers() {
         return playerList;
     }
+
+    @Override
+    public String toString() {
+        String toReturn = super.toString();
+        toReturn += "\nIndex: " + gameIndex + ", Host: " + usernameOfHost + ", BoardSize: " + boardSize + ", Players:";
+        for (String aPlayerList : playerList) toReturn += "\n" + aPlayerList;
+        return toReturn;
+    }
+
+
 }

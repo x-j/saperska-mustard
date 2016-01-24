@@ -1,192 +1,106 @@
 package saperskaMustard;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.*;
 
 public class TableGUI extends JFrame {
 
-	final String usernameOfHost;
-    public JLabel minesLeftLabel;
-    public JLabel statusIcon;
-    int boardSize;
-    Chatbox chatbox = new Chatbox();
-	Board board;
-	String clientUsername;
-	int counterOfMinesLeft;
-	private JPanel boardPanel;
-	private JTextArea chatboxArea;
-	private JTextField chatboxMessageField;
-	private JButton quitToMMButton;
-	private JButton startGameButton;
-	private JLabel whosePlayerTurnItIsLabel;
+    private final String usernameOfHost;
+    private Board board;
+    private int boardSize;
+    private int counterOfMinesLeft;
+    private String clientUsername;
+    private JLabel minesLeftLabel;
+    private JLabel statusIcon;
+    private JPanel boardPanel;
+    private JTextArea chatboxArea;
+    private JTextField chatboxMessageField;
+    private JButton quitToMMButton;
+    private JButton startGameButton;
+    private JLabel whosePlayerTurnItIsLabel;
+    private JPanel mainPanel;
+    private JScrollPane chatboxPane;
+    private boolean isHost;
 
-	/* The constructor below is used for clients */
-	public TableGUI(GameInfo info, String username, Board board) {// username will always be username of client, since GameInfo already knows username of host
+    public TableGUI(GameInfo info, String username, Board board, boolean isHost) {// username will always be username of client, since GameInfo already knows username of host
 
-		this.board = board;
-		board.gui = this;
-		usernameOfHost = info.getUsernameOfHost();
-		this.clientUsername = username;
-		this.boardSize = info.getBoardSize();
-		counterOfMinesLeft = board.numberOfMines;
-
-        startGUI();
-        startGameButton.setVisible(false);
-
-	}
-
-	/************* The constructor below is only used for hosts! ******************/
-
-    public TableGUI(GameInfo info, Board board) {
-
-		this.board = board;
-		board.gui = this;
-		usernameOfHost = info.getUsernameOfHost();
-		this.clientUsername = info.getUsernameOfHost();
-		this.boardSize = info.getBoardSize();
-		counterOfMinesLeft = board.numberOfMines;
+        this.board = board;
+        board.setGui(this);
+        this.isHost = isHost;
+        usernameOfHost = info.getUsernameOfHost();
+        this.clientUsername = username;
+        this.boardSize = info.getBoardSize();
+        counterOfMinesLeft = board.getNumberOfMines();
 
         startGUI();
-        startGameButton.setVisible(true);
+        pack();
+    }
 
-	}
-
-	private void startGUI() {
-		setTitle("Saperska Mustard - " + usernameOfHost + "'s room");
-		setVisible(true);
-		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    private void startGUI() {
+        setTitle("Saperska Mustard - " + usernameOfHost + "'s room");
+        setVisible(true);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() { // this block adds the exit prompt
             public void windowClosing(WindowEvent we) {
 
-				String ObjButtons[] = { "Yes", "No" };
-				int PromptResult = JOptionPane.showOptionDialog(null, "Are you sure you want to exit?", "Saperska Mustard", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, ObjButtons, ObjButtons[1]);
-				if (PromptResult == JOptionPane.YES_OPTION) {
-					board.connection.send(2);//sending USER_DISCONNECTED_SIGNAL so server will can tell others that one has disconnected
-					System.exit(0);
-				}
-			}
-		});
-		setResizable(false);
-		this.lookAndFeelCustomization();
-		initComponents();
-		makeTheTable();
-		initializeChatbox();
-	}
+                String ObjButtons[] = {"Yes", "No"};
+                int PromptResult = JOptionPane.showOptionDialog(null, "Are you sure you want to exit?", "Saperska Mustard", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, ObjButtons, ObjButtons[1]);
+                if (PromptResult == JOptionPane.YES_OPTION) {
+                    board.getConnection().send(Client.DISCONNECT_SIGNAL);//sending USER_DISCONNECTED_SIGNAL so server will can tell others that one has disconnected
+                    System.exit(0);
+                }
+            }
+        });
+        initComponents();
+        makeTheTable();
+        pack();
+    }
 
-	private void initializeChatbox() {
 
-		chatboxArea.setEditable(false);
+    private void initComponents() {
+        add(mainPanel);
+        if (isHost)
+            startGameButton.setVisible(true);
+        else
+            startGameButton.setVisible(false);
 
-	}
+        if (boardSize >= 14)
+            whosePlayerTurnItIsLabel.setText("<html>Waiting for the game to start</html>");
+        else
+            whosePlayerTurnItIsLabel.setText("<html>Waiting for start</html>");
 
-	private void initComponents() {
+        minesLeftLabel.setText("<html>" + counterOfMinesLeft + " mines left</html>");
+        setLocationRelativeTo(null);
+        addActionListeners();
 
-		whosePlayerTurnItIsLabel = new JLabel();
-		boardPanel = new JPanel();
-		chatboxMessageField = new JTextField();
-		quitToMMButton = new JButton();
-		startGameButton = new JButton();
-		statusIcon = new JLabel();
-		minesLeftLabel = new JLabel();
-		chatboxArea = new JTextArea();
+    }
 
-		if (clientUsername == usernameOfHost)
-			startGameButton.setVisible(true);
-		else
-			startGameButton.setVisible(false);
+    private void addActionListeners() {
+        chatboxMessageField.addKeyListener(new KeyListener() {
 
-		whosePlayerTurnItIsLabel.setFont(new java.awt.Font("Tahoma", 3, 12));
-		whosePlayerTurnItIsLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+            @Override
+            public void keyTyped(KeyEvent e) {
 
-		if (boardSize >= 14)
-			whosePlayerTurnItIsLabel.setText("<html>Waiting for the game to start</html>");
-		else
-			whosePlayerTurnItIsLabel.setText("<html>Waiting for start</html>");
+            }
 
-		whosePlayerTurnItIsLabel.setPreferredSize(new java.awt.Dimension(boardSize * 15 / 2, 15));
+            @Override
+            public void keyReleased(KeyEvent e) {
 
-		boardPanel.setPreferredSize(new java.awt.Dimension(boardSize * 25, boardSize * 25));
+            }
 
-		boardPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		boardPanel.setForeground(new java.awt.Color(0, 0, 5));
-
-		GridLayout boardPanelLayout = new GridLayout();
-		boardPanel.setLayout(boardPanelLayout);
-
-		quitToMMButton.setText("Quit");
-
-		startGameButton.setText("Start game");
-
-		statusIcon.setHorizontalAlignment(SwingConstants.CENTER);
-		statusIcon.setText("status");
-
-		minesLeftLabel.setFont(new java.awt.Font("Tahoma", 3, 12)); // NOI18N
-		minesLeftLabel.setText("<html>" + counterOfMinesLeft + " mines left</html>");
-
-		chatboxArea.setColumns(boardSize);
-		chatboxArea.setRows(boardSize);
-		chatbox.setViewportView(chatboxArea);
-		chatbox.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		chatbox.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-
-		GroupLayout layout = new GroupLayout(getContentPane());
-		getContentPane().setLayout(layout);
-		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(
-				layout.createSequentialGroup()
-						.addContainerGap()
-						.addGroup(
-								layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-										.addGroup(
-												layout.createSequentialGroup().addComponent(whosePlayerTurnItIsLabel, GroupLayout.PREFERRED_SIZE, boardSize * 15 / 2, GroupLayout.PREFERRED_SIZE).addGap(boardSize * 5 / 2, boardSize * 5 / 2, boardSize * 5 / 2).addComponent(statusIcon, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE).addGap(boardSize * 5 / 2, boardSize * 5 / 2, boardSize * 5 / 2)
-														.addComponent(minesLeftLabel, GroupLayout.PREFERRED_SIZE, boardSize * 10, GroupLayout.PREFERRED_SIZE)).addComponent(boardPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)).addGap(15, 15, 15)
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addComponent(startGameButton).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE).addComponent(quitToMMButton, GroupLayout.PREFERRED_SIZE, 82, GroupLayout.PREFERRED_SIZE)).addComponent(chatboxMessageField).addComponent(chatbox)).addContainerGap()));
-		layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(
-				layout.createSequentialGroup()
-						.addContainerGap()
-						.addGroup(
-								layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-										.addGroup(
-												layout.createSequentialGroup().addComponent(chatbox, GroupLayout.PREFERRED_SIZE, boardSize * 20, GroupLayout.PREFERRED_SIZE).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(chatboxMessageField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-														.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false).addComponent(startGameButton, GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE).addComponent(quitToMMButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-										.addGroup(
-												layout.createSequentialGroup()
-														.addGroup(
-																layout.createParallelGroup(GroupLayout.Alignment.LEADING, false).addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(whosePlayerTurnItIsLabel, GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE).addComponent(statusIcon, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-																		.addComponent(minesLeftLabel, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(boardPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))).addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
-
-		pack();
-		setLocationRelativeTo(null);
-
-		addActionListeners();
-
-	}
-
-	private void addActionListeners() {
-		chatboxMessageField.addKeyListener(new KeyListener() {
-
-			@Override
-			public void keyTyped(KeyEvent e) {
-
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					String message = ((JTextField) e.getSource()).getText() + "\n";
-
-					message = clientUsername + ": " + message;
-					chatboxMessageField.setText("");
-					board.connection.send(message);
-					//chatboxArea.append(message);//we really dont need the chatbox class I think. just append message to chatboxArea
-					// chatbox.addMessage(message);
-					if (message.contains("penis")) statusIcon.setText("( ͡° ͜ʖ ͡°)");
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    String message = ((JTextField) e.getSource()).getText() + "\n";
+                    message = message.trim();
+                    if (message.startsWith("@")) message = message.substring(1);
+                    message = clientUsername + ": " + message;
+                    chatboxMessageField.setText("");
+                    board.getConnection().send(message);
+                    //chatboxArea.append(message);//we really dont need the chatbox class I think. just append message to chatboxArea
+                    // chatbox.addMessage(message);
+                    if (message.contains("penis")) statusIcon.setText("( ͡° ͜ʖ ͡°)");
                     if (message.contains("such") && message.contains("and")) {
                         whosePlayerTurnItIsLabel.setText("such");
                         statusIcon.setText("and");
@@ -195,80 +109,90 @@ public class TableGUI extends JFrame {
 
                 }
             }
-		}); // catches messages sent through the chat box and sends them to the
-			// Chatbox class
+        }); // catches messages sent through the chat box and sends them to the
+        // Chatbox class
 
-		quitToMMButton.addActionListener(new ActionListener() {
+        quitToMMButton.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
 
-				String ObjButtons[] = { "Yes", "No" };
-				int PromptResult = JOptionPane.showOptionDialog(null, "Are you sure you want to quit to main menu?", "Saperska Mustard", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, ObjButtons, ObjButtons[1]);
-				if (PromptResult == JOptionPane.YES_OPTION) {
-                    board.connection.disconnect();
+                if (!board.isGameOver()) {
+                    String ObjButtons[] = {"Yes", "No"};
+                    int PromptResult = JOptionPane.showOptionDialog(null, "Are you sure you want to quit to main menu?", "Multiplayer Minesweeper", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, ObjButtons, ObjButtons[1]);
+                    if (PromptResult == JOptionPane.YES_OPTION) {
+                        board.getConnection().disconnect();
+                        dispose();
+                    }
+                } else {
+                    board.getConnection().disconnect();
                     dispose();
                 }
-			}
-		}); // this block adds the exit prompt
+            }
+        }); // this block adds the exit prompt
 
-		startGameButton.addActionListener(new ActionListener() {
+        startGameButton.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				startGameButton.setVisible(false);
-				board.connection.send("[" + usernameOfHost + " started the game!]");
-				board.gameStart();
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                startGameButton.setVisible(false);
+                board.getConnection().send("[" + usernameOfHost + " started the game!]");
+                board.gameStart();
                 if (boardSize >= 12)
-					whosePlayerTurnItIsLabel.setText("<html>It's " + board.currentPlayer + "'s turn. </html>");
-				else
-					whosePlayerTurnItIsLabel.setText("<html>" + board.currentPlayer + "'s turn. </html>");
+                    whosePlayerTurnItIsLabel.setText("<html>It's " + board.getCurrentPlayer() + "'s turn. </html>");
+                else
+                    whosePlayerTurnItIsLabel.setText("<html>" + board.getCurrentPlayer() + "'s turn. </html>");
 
-			}
-		}); // handles the startGameButton, begins the game via the Board method
+            }
+        }); // handles the startGameButton, begins the game via the Board method
 
-	} // assigngs Action Listeners to some components
+    } // assigngs Action Listeners to some components
 
-	public void lookAndFeelCustomization() {
 
-		try {
-			for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-				if ("Nimbus".equals(info.getName())) {
-					UIManager.setLookAndFeel(info.getClassName());
-					break;
-				}
-			}
-		} catch (ClassNotFoundException ex) {
-			java.util.logging.Logger.getLogger(TableGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		} catch (InstantiationException ex) {
-			java.util.logging.Logger.getLogger(TableGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		} catch (IllegalAccessException ex) {
-			java.util.logging.Logger.getLogger(TableGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		} catch (UnsupportedLookAndFeelException ex) {
-			java.util.logging.Logger.getLogger(TableGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		}
+    private void makeTheTable() {
 
-	} // added by default from NetBeans
+        // this method adds squares to the boardPanel
+        // and sets up the Board, i guess
 
-	private void makeTheTable() {
+        GridLayout boardPanelLayout = new GridLayout(boardSize, boardSize);
+        boardPanel.setLayout(boardPanelLayout);
 
-		// this method adds squares to the boardPanel
-		// and sets up the Board, i guess
+        for (int i = 0; i < boardSize; i++) {
+            for (int j = 0; j < boardSize; j++) {
+                board.getSquares()[i][j] = new SquareButton(board, i, j);
+                boardPanel.add(board.getSquares()[i][j]);
+            }
+        }
 
-		GridLayout boardPanelLayout = new GridLayout(boardSize, boardSize);
-		boardPanel.setLayout(boardPanelLayout);
+    }
 
-		for (int i = 0; i < boardSize; i++) {
-			for (int j = 0; j < boardSize; j++) {
-				board.squares[i][j] = new SquareButton(board, i, j);
-				boardPanel.add(board.squares[i][j]);
-			}
-		}
+    public JTextArea getChatboxArea() {
+        return chatboxArea;
+    }
 
-	}
+    public int getCounterOfMinesLeft() {
+        return counterOfMinesLeft;
+    }
 
-	public JTextArea getChatboxArea() {
-		return chatboxArea;
-	}
+    public JLabel getMinesLeftLabel() {
+        return minesLeftLabel;
+    }
+
+    public void incrementCounterOfMinesLeft() {
+        counterOfMinesLeft++;
+    }
+
+    public void decrementCounterOfMinesLeft() {
+        counterOfMinesLeft--;
+    }
+
+    public JLabel getStatusIcon() {
+        return statusIcon;
+    }
+
+    public JLabel getWhosePlayerTurnItIsLabel() {
+        return whosePlayerTurnItIsLabel;
+    }
+
 
 }

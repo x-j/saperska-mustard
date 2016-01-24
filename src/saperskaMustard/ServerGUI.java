@@ -11,7 +11,6 @@ import java.awt.event.KeyListener;
  */
 public class ServerGUI extends javax.swing.JFrame {
 
-    MinesweeperThreadedServer server;
     private JPanel mainPanel;
     private JTextField messageInputField;
     private JButton exitButton;
@@ -20,22 +19,22 @@ public class ServerGUI extends javax.swing.JFrame {
     private JLabel explaininglabel;
     private JScrollPane statusPane;
     private JTextArea textArea;
+    private JLabel clientsConnectedLabel;
 
 
-    public ServerGUI(MinesweeperThreadedServer minesweeperThreadedServer) {
-        server = minesweeperThreadedServer;
+    public ServerGUI() {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         initComponents();
         addActionListeners();
         setVisible(true);
         setResizable(false);
-        setTitle("Saperska Mustard server");
+        setTitle("Multiplayer Minesweeper server");
         setLocationRelativeTo(null);
     }
 
     private void initComponents() {
-        setDefaultLookAndFeelDecorated(true);
         add(mainPanel);
+        clientsConnectedLabel = new JLabel();
         pack();
     }
 
@@ -58,7 +57,7 @@ public class ServerGUI extends javax.swing.JFrame {
                     String message = ((JTextField) e.getSource()).getText();
                     message = "SERVER> " + message;
                     messageInputField.setText("");
-                    server.sendToAll(message);
+                    MinesweeperThreadedServer.sendToAll(message);
 
                 }
             }
@@ -75,12 +74,13 @@ public class ServerGUI extends javax.swing.JFrame {
 
     public void addStatus(String newStatus) {
         textArea.append("~" + newStatus + "\n");
-        statusPane.getVerticalScrollBar().setValue(statusPane.getVerticalScrollBar().getMaximum());
+        statusPane.getVerticalScrollBar().setValue(statusPane.getVerticalScrollBar().getMinimum());
     }
 
-
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
+    public void updateClientsConnectedLabel() {
+        String newText = clientsConnectedLabel.getText();
+        newText = newText.substring(newText.indexOf(' '));
+        newText = MinesweeperThreadedServer.getAllClients().size() + newText;
+        clientsConnectedLabel.setText(newText);
     }
 }
-
