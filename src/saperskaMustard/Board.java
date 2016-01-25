@@ -189,7 +189,11 @@ public class Board {
 
     public void updateBoard(GameInfo gi) {
         players = gi.getPlayers();
-        //TODO not so fast, we have to update CurrentPlayer and CurrentPlayerIndex so game can continue even when someone bails out (if someone disconnects)
+        if (!players.contains(currentPlayer)) {
+            currentPlayer = players.get(0);
+            if (currentPlayer.equals(clientUsername))
+                yourTurn();
+        }
 
     }   //deceptively simple method, gets called by Client, tells us about the changed number of players in the game.
 

@@ -128,6 +128,7 @@ public class SquareButton extends JButton {
             setText("<html><font color = \"blue\">F</font></html>");    //I HAVE NO IDEA WHY THIS IS NOT WORKING
         else if (arg == 10) setText("<html><font color = \"black\">M</font></html>");
         else if (arg == 0) setText("");
+        this.setIcon(icons[arg]);
         this.setPressedIcon(icons[arg]);
         this.setDisabledIcon(icons[arg]);
     }
