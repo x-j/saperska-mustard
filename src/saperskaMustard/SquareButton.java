@@ -149,16 +149,7 @@ public class SquareButton extends JButton {
             this.setEnabled(false);
             this.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
             board.uncoverEmptyAdjacent(i, j);
-            if (content == Board.MINE && !board.isGameOver()) {
-                board.getGui().stopTimer();
-                board.setGameOver(true);
-                board.getGui().getStatusIcon().setText("DEAD!");
-                JOptionPane.showMessageDialog(this.getParent(), "Game over!");
-                for (SquareButton sb : SquareButton.ALL_SQUAREBUTTONS) {
-                    sb.setEnabled(false);
-                    if (sb.content == Board.MINE) sb.reveal();
-                }
-            }
+            if (content == Board.MINE && !board.isGameOver()) board.loseTheGame();
         }
     }
 

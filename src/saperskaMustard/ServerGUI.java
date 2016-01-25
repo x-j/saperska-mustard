@@ -5,6 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class ServerGUI extends javax.swing.JFrame {
 
@@ -76,7 +78,8 @@ public class ServerGUI extends javax.swing.JFrame {
 
     public void addStatus(String newStatus) {
         if (!newStatus.endsWith(": ") && !newStatus.endsWith("> ")) {
-            textArea.append("~" + newStatus + "\n");
+            String timeStamp = new SimpleDateFormat("HH:mm").format(Calendar.getInstance().getTime());
+            textArea.append("~[" + timeStamp + "] " + newStatus.trim() + "\n");
             textArea.setCaretPosition(textArea.getText().length());
         }
     }

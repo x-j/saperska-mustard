@@ -4,6 +4,8 @@ import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.*;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 
 public class TableGUI extends JFrame {
@@ -23,10 +25,11 @@ public class TableGUI extends JFrame {
     private JLabel whosePlayerTurnItIsLabel;
     private JScrollPane paneOfChatbox;
     private JLabel timerLabel;
+    private JLabel whoamiLabel;
 
     private boolean isHost;
 
-    private Thread timerThread;
+    private Timer timer;  //create a new Timer
 
     public TableGUI(GameInfo info, String username, Board board, boolean isHost) {// username will always be username of client, since GameInfo already knows username of host
 
@@ -38,20 +41,6 @@ public class TableGUI extends JFrame {
         this.boardSize = info.getBoardSize();
         counterOfMinesLeft = board.getNumberOfMines();
 
-        timerThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                long now = System.currentTimeMillis();
-                while (true) {
-                    long then = System.currentTimeMillis();
-                    long milisElapsed = then - now;
-                    if (milisElapsed % 100 == 0) {
-                        int secondsElapsed = (int) (milisElapsed * 0.001);
-                        timerLabel.setText(secondsElapsed + "s");
-                    }
-                }
-            }
-        });
 
         startGUI();
         pack();
@@ -93,6 +82,10 @@ public class TableGUI extends JFrame {
         paneOfChatbox = new JScrollPane();
         chatboxArea = new JTextArea();
         timerLabel = new JLabel();
+        whoamiLabel = new JLabel("Playing as " + clientUsername);
+
+        whoamiLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
+        whoamiLabel.setHorizontalTextPosition(SwingConstants.LEFT);
 
         paneOfChatbox.setWheelScrollingEnabled(true);
         paneOfChatbox.getViewport().setView(chatboxArea);
@@ -137,7 +130,9 @@ public class TableGUI extends JFrame {
         chatboxArea.setRows(boardSize);
         paneOfChatbox.setViewportView(chatboxArea);
         paneOfChatbox.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        paneOfChatbox.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        paneOfChatbox.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        timerLabel.setFont(new Font("Lucida Console", Font.PLAIN, 12));
 
         setUpLayout();
 
@@ -148,18 +143,28 @@ public class TableGUI extends JFrame {
     }
 
     public void stopTimer() {
-        if (timerThread.isAlive()) {
-            try {
-                timerThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        if (timer.isRunning()) timer.stop();
     }
 
     public void runTimer() {
 
-        timerThread.start();
+        //timerThread.start();  //has to be commented out, because sadly it makes the program go boom :<
+        long startTime = System.currentTimeMillis();
+
+        ActionListener timerTask = new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                long now = System.currentTimeMillis() - startTime;
+                int timeInSeconds = (int) (now * 0.001);
+                TableGUI.this.timerLabel.setText(String.valueOf(timeInSeconds) + "s elapsed.");
+            }
+
+
+        };
+
+        timer = new Timer(1000, timerTask);
+        timer.start();
 
     }
 
@@ -177,8 +182,11 @@ public class TableGUI extends JFrame {
                                                 .addComponent(statusIcon, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                 .addComponent(timerLabel, GroupLayout.PREFERRED_SIZE, boardSize * 10, GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(layout.createSequentialGroup()
                                         .addComponent(boardPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGap(boardSize, boardSize, boardSize)
+                                        .addComponent(whoamiLabel, GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
                                         .addGroup(GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                                 .addComponent(startGameButton)
@@ -189,7 +197,7 @@ public class TableGUI extends JFrame {
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                 .addComponent(whosePlayerTurnItIsLabel, GroupLayout.PREFERRED_SIZE, boardSize * 15, GroupLayout.PREFERRED_SIZE)
                                                 .addGap(0, 0, Short.MAX_VALUE))
-                                        .addComponent(paneOfChatbox, GroupLayout.PREFERRED_SIZE, 250, GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(paneOfChatbox, GroupLayout.PREFERRED_SIZE, 300, GroupLayout.PREFERRED_SIZE))
                                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -211,7 +219,10 @@ public class TableGUI extends JFrame {
                                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
                                                         .addComponent(startGameButton, GroupLayout.PREFERRED_SIZE, 37, GroupLayout.PREFERRED_SIZE)
                                                         .addComponent(quitToMMButton, GroupLayout.PREFERRED_SIZE, 37, GroupLayout.PREFERRED_SIZE)))
-                                        .addComponent(boardPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addComponent(boardPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(whoamiLabel)))
                                 .addContainerGap())
         );
     }
@@ -279,7 +290,7 @@ public class TableGUI extends JFrame {
                     String ObjButtons[] = {"Yes", "No"};
                     int PromptResult = JOptionPane.showOptionDialog(null, "Are you sure you want to quit to main menu?", "Multiplayer Minesweeper", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, ObjButtons, ObjButtons[1]);
                     if (PromptResult == JOptionPane.YES_OPTION) {
-                        stopTimer();
+                        if (board.hasBegun()) stopTimer();
                         board.getConnection().disconnect();
                         dispose();
                     }
@@ -310,6 +321,8 @@ public class TableGUI extends JFrame {
 
     public void addMessage(String message) {
         if (!message.endsWith(": ") && !message.endsWith("> ")) {
+            String timeStamp = new SimpleDateFormat("HH:mm").format(Calendar.getInstance().getTime());
+            message = "[" + timeStamp + "] " + message.trim();
             chatboxArea.append(message + "\n");
             chatboxArea.setCaretPosition(chatboxArea.getText().length());
             paneOfChatbox.getVerticalScrollBar().setValue(paneOfChatbox.getVerticalScrollBar().getMaximum());

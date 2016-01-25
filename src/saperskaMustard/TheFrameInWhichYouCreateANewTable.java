@@ -9,8 +9,6 @@ import java.net.UnknownHostException;
 
 public class TheFrameInWhichYouCreateANewTable extends JFrame {
 
-    //whoops, this class will get recreated any second now
-
     final private static String DEFAULT_USERNAME = "TEST";
     private static String DEFAULT_IP_ADDRESS;
     private String username;
@@ -39,6 +37,7 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
     }
 
     // method initComponents created mostly using NetBeans, so it contains some weird stuff, for example Group Layout
+    //takes care of proper initialization of components
     private void initComponents() {
 
         theFieldInWhichYouInputYourUsername = new JTextField();
@@ -90,7 +89,7 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
         textField.setToolTipText("enter the IP of the server here");
 
         spinner = new JSpinner();
-        spinner.setModel(new SpinnerNumberModel(10, 4, 30, 1));
+        spinner.setModel(new SpinnerNumberModel(10, 6, 30, 1));
 
         setUpLayout();
 
@@ -98,6 +97,7 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
         setLocationRelativeTo(null);
     }
 
+    //adds components in the right places
     private void setUpLayout() {
 
         GroupLayout layout = new GroupLayout(getContentPane());
@@ -148,6 +148,7 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
         getContentPane().setLayout(layout);
     }
 
+    //handles clicking on the Back button
     private void backToMMButtonActionPerformed(java.awt.event.ActionEvent evt) {
 
         System.out.println("Going back to main menu from TheFrameInWhichYouCreateANewTable");
@@ -156,17 +157,21 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 
     }
 
+    //handles clicking on Create a Table button
     private void createTableButtonActionPerformed(java.awt.event.ActionEvent evt) {
 
+        //we get the information about the new game from the fields
         boardSize = (int) spinner.getValue();
         String ip = theIpField.getText();
         username = theFieldInWhichYouInputYourUsername.getText();
         username = username.trim();
 
+        //we want to set some limits to the username, so it must be between 2 and 11 characters
         if (username.length() < 11) {
             if (username.length() < 2)
                 JOptionPane.showMessageDialog(this, "The username must be at least 2 characters long.");
 
+                //we dont want to let it start with @ because later on we will send @+username, and it will be a "signal" to the server
             else if (username.startsWith("@")) {
                 JOptionPane.showMessageDialog(this, "The username cannot start with '@'.");
             } else {

@@ -16,7 +16,6 @@ public class GameInfo implements Serializable {
         this.ipAddressOfHost = ip;
         this.boardSize = boardSize;
         playerList.add(userOfHost);
-
     }
 
 

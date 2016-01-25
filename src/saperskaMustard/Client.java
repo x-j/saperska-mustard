@@ -120,11 +120,7 @@ public class Client {
                         //if we received an array of ints, it means these are coordinates, so we click using them.
                         else if (objectFromServer instanceof int[]) {
                             int[] coordinates = ((int[]) objectFromServer);
-                            board.getGui().getChatboxArea().append(board.getCurrentPlayer() + " has clicked the square (" + coordinates[0] + "," + coordinates[1] + ")\n");
                             board.receiveClick(coordinates[0], coordinates[1]);
-
-                            board.getGui().getWhosePlayerTurnItIsLabel().setText(board.getCurrentPlayer() + "'s turn");
-
                         }
 
                         //if we received a singular int, that means it's some sort of a signal from the server
@@ -223,13 +219,15 @@ public class Client {
         }
 
         public void closeConnections() {
+            //if we want to close connection to the server, we close all our IO streams, the socket, and get rid of all gui.
             try {
                 inputFromServer.close();
                 outputToServer.close();
                 socket.close();
                 board.getGui().dispose();
+                //and we return to Main Menu:
                 MainMenu.run();
-                System.out.println("We closed the client-side i/o streams and socket, most likely due to server shutdown/disconnect");
+
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(null, "An error occurred on disconneting." + e.getMessage(), "Saperska Mustard", JOptionPane.ERROR_MESSAGE);
             }
@@ -238,7 +236,7 @@ public class Client {
 
     }
 
-    private class ConnectionPopup extends JFrame {
+    private class ConnectionPopup extends JFrame { //this small GUI object tells us that we're waiting to join a game.
 
         private javax.swing.JButton quitButton;
         private javax.swing.JLabel textLabel;

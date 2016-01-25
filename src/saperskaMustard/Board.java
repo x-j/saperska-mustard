@@ -24,13 +24,16 @@ public class Board {
     private ArrayList<String> players = new ArrayList<>();
     private String clientUsername;
     private Client connection;
-    private int currentPlayerIndex;
+    private int currentPlayerIndex; //used to determine whose turn it is.
 
     public Board(GameInfo info, String username, Client client, boolean isHost) {
+
         this.currentPlayerIndex = 0;
         this.connection = client;
         this.boardSize = info.getBoardSize();
         this.usernameOfHost = info.getUsernameOfHost();
+        //the formula for calculating the number of mines is: boardSize ^2 * 0.18, so we get 0.18 mines per square.
+        //this is a fair amount, not too difficult, and not too easy.
         numberOfMines = (int) (Math.pow(boardSize, 2) * 0.18);
         currentPlayer = usernameOfHost;
         this.clientUsername = username;
@@ -41,6 +44,7 @@ public class Board {
 
     private ArrayList<SquareButton> getNeighbours(int i, int j) {
 
+        //returns all 8 neighbours of a square on given coordinates.
         ArrayList<SquareButton> neighbours = new ArrayList<>();
 
         i++;
@@ -72,6 +76,7 @@ public class Board {
     }
 
     public boolean squareExists(int i, int j) {
+        //used to determine if the coordinates of a given square lie within the Board boundaries
         if (i < 0 || j < 0)
             return false;
         return !(i >= boardSize || j >= boardSize);
@@ -79,26 +84,23 @@ public class Board {
 
     public void setUpSquares(boolean[][] mines) {
 
-        System.out.println("setting up squares now.");
+        gui.runTimer();
 
-        //gui.runTimer();
-
+        //the loop below fills the proper squares with mines, based on information received from Server.
         for (int i = 0; i < boardSize; i++)
             for (int j = 0; j < boardSize; j++) if (mines[i][j]) squares[i][j].setContent(MINE);
 
+        //this second loop sets up the content of all the other squares (content indicates how many mines are among a square's neighbours)
         for (int i = 0; i < boardSize; i++) {
             for (int j = 0; j < boardSize; j++) {
                 if (!mines[i][j]) {
                     ArrayList<SquareButton> neighbours = getNeighbours(i, j);
+                    //we count the mines in the neighbours of a square:
                     int mineCounter = 0;
-                    for (SquareButton sb : neighbours) {
+                    for (SquareButton sb : neighbours)
                         if (sb.getContent() == MINE)
                             mineCounter++;
-                    }
-                    if (mineCounter == 0)
-                        squares[i][j].setContent(0);
-                    else
-                        squares[i][j].setContent(mineCounter);
+                    squares[i][j].setContent(mineCounter);
                 }
             }
         }
@@ -140,13 +142,12 @@ public class Board {
 
         // after receiving information from the server about a clicked square,
         // we update our local Board
-        System.out.println("The client: " + clientUsername + " has the following players in his array list: ");
-        for (String s : players)
-            System.out.println(s);
+
+        gui.addMessage(currentPlayer + " has clicked the square (" + i + "," + j + ")");
 
         squares[i][j].reveal();
 
-        // we unfortunately have to check if the game is over or not
+        // we unfortunately have to check if we won the game or not
         //this means iterating through all the squares to find if there are any non-mine fields left uncovered:
         if (squares[0][0].getContent() != -1 && !gameOver) {
             if (checkForVictory()) {
@@ -165,10 +166,9 @@ public class Board {
             currentPlayerIndex %= players.size();
             currentPlayer = players.get(currentPlayerIndex);
 
-            if (currentPlayer.equals(clientUsername))
-                yourTurn();
-            else
-                notYourTurn();
+            if (currentPlayer.equals(clientUsername)) yourTurn();
+            else notYourTurn();
+            gui.getWhosePlayerTurnItIsLabel().setText(currentPlayer + "'s turn");
         }
 
     }
@@ -198,7 +198,6 @@ public class Board {
     }   //deceptively simple method, gets called by Client, tells us about the changed number of players in the game.
 
     public void uncoverEmptyAdjacent(int i, int j) {
-
 
         if (squares[i][j].getContent() == 0) {
             ArrayList<SquareButton> neighbours = getNeighbours(i, j);
@@ -266,5 +265,17 @@ public class Board {
 
     public String getNextPlayerString() {
         return getPlayers().get(currentPlayerIndex);//also possible is return currentPlayer;
+    }
+
+    public void loseTheGame() {
+        gui.stopTimer();
+        gui.addMessage("But it was a mine!");
+        gameOver = true;
+        gui.getStatusIcon().setText("DEAD!");
+        JOptionPane.showMessageDialog(gui, "Game over!");
+        for (SquareButton sb : SquareButton.ALL_SQUAREBUTTONS) {
+            sb.setEnabled(false);
+            if (sb.getContent() == Board.MINE) sb.reveal();
+        }
     }
 }

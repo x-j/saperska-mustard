@@ -10,7 +10,8 @@ import java.net.UnknownHostException;
  */
 public class TheFrameInWhichYouJoinARandomGame extends JFrame {
 
-    public final static int DEFAULT_PORT = 5000;
+    //from this frame we join a random game open on the server.
+
     final private static String DEFAULT_USERNAME_FIELD_TEXT = "TEST";
     public static String DEFAULT_IP_ADDRESS;
     String username;
@@ -139,13 +140,13 @@ public class TheFrameInWhichYouJoinARandomGame extends JFrame {
 
         //watch out, this event handles joining to an already existing Game.
         //We cannot join a random game if no games are open at the moment, so we return to the main  menu
-        System.out.println("Number of games on server: " + MinesweeperThreadedServer.ALL_GAMES.size());//for some reason this is always 0 no matter how many games are created
 
-
+        //we get info from the fields"
         String ip = theIpField.getText();
         username = theFieldInWhichYouInputYourUsername.getText();
         username = username.trim();
 
+        //as in the other frame, we set rules regarding usernames
         if (username.length() < 11) {
             if (username.length() < 2)
                 JOptionPane.showMessageDialog(this, "The username must be at least 2 characters long.");

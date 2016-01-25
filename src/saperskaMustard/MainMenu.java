@@ -8,6 +8,7 @@ public class MainMenu extends JFrame {
 
     //the GUI of the Main Menu. the further Panels are opened from here.
     //	one can also find out who the creators of this application are
+    //this was created using NetBeans, so weird methods aplenty.
 
     private JLabel bragLabel;
     private JLabel greetings;
