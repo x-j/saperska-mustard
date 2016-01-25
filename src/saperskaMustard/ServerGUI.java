@@ -6,9 +6,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-/**
- * Created by xj on 2016-01-11.
- */
 public class ServerGUI extends javax.swing.JFrame {
 
     private JPanel mainPanel;
@@ -20,6 +17,7 @@ public class ServerGUI extends javax.swing.JFrame {
     private JScrollPane statusPane;
     private JTextArea textArea;
     private JLabel clientsConnectedLabel;
+    private JScrollBar verticalScrollBar;
 
 
     public ServerGUI() {
@@ -33,8 +31,12 @@ public class ServerGUI extends javax.swing.JFrame {
     }
 
     private void initComponents() {
+        textArea = new JTextArea();
+        statusPane.add(textArea);
+        statusPane.getViewport().setView(textArea);
+        textArea.setVisible(true);
+        textArea.setEditable(false);
         add(mainPanel);
-        clientsConnectedLabel = new JLabel();
         pack();
     }
 
@@ -73,8 +75,10 @@ public class ServerGUI extends javax.swing.JFrame {
     }
 
     public void addStatus(String newStatus) {
-        textArea.append("~" + newStatus + "\n");
-        statusPane.getVerticalScrollBar().setValue(statusPane.getVerticalScrollBar().getMinimum());
+        if (!newStatus.endsWith(": ") && !newStatus.endsWith("> ")) {
+            textArea.append("~" + newStatus + "\n");
+            textArea.setCaretPosition(textArea.getText().length());
+        }
     }
 
     public void updateClientsConnectedLabel() {

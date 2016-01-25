@@ -3,19 +3,23 @@ package saperskaMustard;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.InvalidPropertiesFormatException;
 import java.util.Properties;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Client {
 
     public static final Object DISCONNECT_SIGNAL = 2;
-    GameInfo info;
-    Board board;
-    TableGUI table;
+    public static final int NO_OPEN_GAMES_SIGNAL = 3;
+
+    private GameInfo info;
+    private Board board;
     private int port; //will be read from config.xml file.
+    private String username;
 
     private ConnectionPopup popup;
 
@@ -24,7 +28,7 @@ public class Client {
     private Socket socket;
     private boolean hasGameInfo = false;
 
-    public Client(boolean isHost, String IPAddress, final String clientUsername, int boardSize) throws IOException {
+    public Client(boolean isHost, String IPAddress, String clientUsername, int boardSize) throws IOException {
 
         readConfig();   //reads info from the config.xml file.
 
@@ -32,27 +36,28 @@ public class Client {
         socket = new Socket(IPAddress, port);
         objectsReceivedFromServer = new LinkedBlockingQueue<>();
         server = new ConnectionToServer(socket);
+        this.username = clientUsername;
 
         if (isHost) {
 
             //if we're the host, we are the ones who create new GameInfo
             info = new GameInfo(clientUsername, IPAddress, boardSize);
             board = new Board(info, clientUsername, this, true);
-            table = new TableGUI(info, clientUsername, board, true);
-            table.getWhosePlayerTurnItIsLabel().setText("Waiting for game start");
+            board.setGui(new TableGUI(info, clientUsername, board, true));
+            board.getGui().getWhosePlayerTurnItIsLabel().setText("Waiting for game start");
             //sending the info to the server, also means that a new Game will start on the server
             server.write(info);
-            hasGameInfo = true; //becomes true, because we obviosly already created the Board and tableGUI
+            hasGameInfo = true; //becomes true, because we obviosly already created the Board and board.getGui()GUI
 
         } else {
 
             //if we're not the host, we have to send our username (with @ at the beginning) this
-            // this is equivalent with asking the server for a suitable game for us to join.
-
+            // this is equivalent with asking the server for a suiboard.getGui() game for us to join.
+            server.write("@" + clientUsername);
 
             //as we wait to connect to the server, we show a popup that tells us that we're waiting.
-            server.write("@" + clientUsername);
             popup = new ConnectionPopup();
+
         }
 
         //after sending the initial info to the server, we run a thread which will handle objects received
@@ -66,35 +71,43 @@ public class Client {
                         Object objectFromServer = objectsReceivedFromServer.take();
 
                         //if we receive GameInfo for the first time  from the server, we use it to create ourselves a Board and GUI
-                        if (objectFromServer instanceof GameInfo && hasGameInfo == false) {
+                        if (objectFromServer instanceof GameInfo && !hasGameInfo) {
 
                             popup.dispose();    //get rid of the popup
 
                             info = ((GameInfo) objectFromServer);
                             hasGameInfo = true;
 
+                            //there's a possibility that our username had to be changed because it was already existing in this game
+                            //so we check:
+                            if (info.getPlayers().contains(username + "1"))
+                                username += "1";
+
                             //create new Board and GUI using the GameInfo
-                            System.out.println("Players in gameInfo that " + clientUsername + " received: ");
+                            System.out.println("Players in gameInfo that " + username + " received: ");
                             System.out.println(info.getPlayers());
-                            board = new Board(info, clientUsername, Client.this, false);
-                            table = new TableGUI(info, clientUsername, board, false);
-                            table.getWhosePlayerTurnItIsLabel().setText("Waiting for host");
+                            board = new Board(info, username, Client.this, false);
+                            board.setGui(new TableGUI(info, username, board, false));
+                            board.getGui().getWhosePlayerTurnItIsLabel().setText("Waiting for host");
 
                         }
 
                         //otherwise, IF WE ALREADY HAVE RECEIVED INFO, WE UPDATE OUR BOARD.
                         //because it means a new player has joined/left the Game
-                        else if (objectFromServer instanceof GameInfo && hasGameInfo == true) {
-                            System.out.println("The client " + clientUsername + " will update his board with the following players: ");
-                            System.out.println(((GameInfo) objectFromServer).getPlayers());
-                            board.updateBoard((GameInfo) objectFromServer);
+                        else if (objectFromServer instanceof GameInfo && hasGameInfo) {
+                            GameInfo newInfo = (GameInfo) objectFromServer;
+                            System.out.println("The client " + username + " will update his board with the following players: ");
+                            System.out.println(newInfo);
+                            board.updateBoard(newInfo);
                         }
 
 
                         //if we receive a String from the server, then we know its a new chat message, so we add it to the chatbox
                         else if (objectFromServer instanceof String) {
+
                             String message = (String) objectFromServer;
-                            table.getChatboxArea().append(message + "\n");
+                            board.getGui().addMessage(message);
+
                         }
 
                         //if we receive a twodimensional aray of booleans, we setUp our mines and create buttons.
@@ -107,11 +120,23 @@ public class Client {
                         //if we received an array of ints, it means these are coordinates, so we click using them.
                         else if (objectFromServer instanceof int[]) {
                             int[] coordinates = ((int[]) objectFromServer);
-                            table.getChatboxArea().append(board.getCurrentPlayer() + " has clicked the square (" + coordinates[0] + "," + coordinates[1] + ")\n");
+                            board.getGui().getChatboxArea().append(board.getCurrentPlayer() + " has clicked the square (" + coordinates[0] + "," + coordinates[1] + ")\n");
                             board.receiveClick(coordinates[0], coordinates[1]);
 
-                            table.getWhosePlayerTurnItIsLabel().setText(board.getCurrentPlayer() + "'s turn");
+                            board.getGui().getWhosePlayerTurnItIsLabel().setText(board.getCurrentPlayer() + "'s turn");
 
+                        }
+
+                        //if we received a singular int, that means it's some sort of a signal from the server
+                        else if (objectFromServer instanceof Integer) {
+                            int signal = (int) objectFromServer;
+
+                            //if it's a signal that there are no open games left, we display a message and return to MM
+                            if (signal == NO_OPEN_GAMES_SIGNAL && !hasGameInfo) {
+                                JOptionPane.showMessageDialog(null, "No open games available.", "Saperska Mustard", JOptionPane.ERROR_MESSAGE);
+                                popup.dispose();
+                                MainMenu.run();
+                            }
                         }
 
                     } catch (InterruptedException e) {
@@ -133,10 +158,6 @@ public class Client {
         try {
             fis = new FileInputStream("config.xml");
             props.loadFromXML(fis);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (InvalidPropertiesFormatException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -182,9 +203,7 @@ public class Client {
                                 e1.printStackTrace();
                             }
                             e.printStackTrace();
-                        } catch (ClassNotFoundException e) {
-                            e.printStackTrace();
-                        } catch (InterruptedException e) {
+                        } catch (ClassNotFoundException | InterruptedException e) {
                             e.printStackTrace();
                         }
                     }
@@ -221,8 +240,8 @@ public class Client {
 
     private class ConnectionPopup extends JFrame {
 
-        private javax.swing.JButton jButton1;
-        private javax.swing.JLabel jLabel1;
+        private javax.swing.JButton quitButton;
+        private javax.swing.JLabel textLabel;
 
         public ConnectionPopup() {
             setVisible(true);
@@ -249,19 +268,19 @@ public class Client {
         }
 
         private void setActionListener() {
-            jButton1.addActionListener(new ActionListener() {
+            quitButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    System.exit(0);
                     MainMenu.run();
+                    dispose();
                 }
             });
         }
 
         private void initComponents() {
 
-            jButton1 = new javax.swing.JButton();
-            jLabel1 = new javax.swing.JLabel();
+            quitButton = new javax.swing.JButton();
+            textLabel = new javax.swing.JLabel();
 
             setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
             setTitle("Saperska Mustard");
@@ -269,10 +288,10 @@ public class Client {
             setResizable(false);
             //setType(java.awt.Window.Type.POPUP);
 
-            jButton1.setText("Quit");
+            quitButton.setText("Quit");
 
-            jLabel1.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-            jLabel1.setText("Connecting to server...");
+            textLabel.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+            textLabel.setText("Connecting to server...");
 
             javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
             getContentPane().setLayout(layout);
@@ -280,20 +299,20 @@ public class Client {
                     layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                     .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jButton1)
+                                    .addComponent(quitButton)
                                     .addContainerGap())
                             .addGroup(layout.createSequentialGroup()
                                     .addContainerGap()
-                                    .addComponent(jLabel1)
+                                    .addComponent(textLabel)
                                     .addContainerGap(93, Short.MAX_VALUE))
             );
             layout.setVerticalGroup(
                     layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                     .addContainerGap(12, Short.MAX_VALUE)
-                                    .addComponent(jLabel1)
+                                    .addComponent(textLabel)
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButton1)
+                                    .addComponent(quitButton)
                                     .addContainerGap())
             );
             setLocationRelativeTo(null);

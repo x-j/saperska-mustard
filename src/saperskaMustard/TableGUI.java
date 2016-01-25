@@ -1,8 +1,10 @@
 package saperskaMustard;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.*;
+
 
 public class TableGUI extends JFrame {
 
@@ -19,9 +21,12 @@ public class TableGUI extends JFrame {
     private JButton quitToMMButton;
     private JButton startGameButton;
     private JLabel whosePlayerTurnItIsLabel;
-    private JPanel mainPanel;
-    private JScrollPane chatboxPane;
+    private JScrollPane paneOfChatbox;
+    private JLabel timerLabel;
+
     private boolean isHost;
+
+    private Thread timerThread;
 
     public TableGUI(GameInfo info, String username, Board board, boolean isHost) {// username will always be username of client, since GameInfo already knows username of host
 
@@ -33,6 +38,21 @@ public class TableGUI extends JFrame {
         this.boardSize = info.getBoardSize();
         counterOfMinesLeft = board.getNumberOfMines();
 
+        timerThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                long now = System.currentTimeMillis();
+                while (true) {
+                    long then = System.currentTimeMillis();
+                    long milisElapsed = then - now;
+                    if (milisElapsed % 100 == 0) {
+                        int secondsElapsed = (int) (milisElapsed * 0.001);
+                        timerLabel.setText(secondsElapsed + "s");
+                    }
+                }
+            }
+        });
+
         startGUI();
         pack();
     }
@@ -40,6 +60,8 @@ public class TableGUI extends JFrame {
     private void startGUI() {
         setTitle("Saperska Mustard - " + usernameOfHost + "'s room");
         setVisible(true);
+        setResizable(false);
+        setMaximumSize(getSize());
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() { // this block adds the exit prompt
             public void windowClosing(WindowEvent we) {
@@ -47,34 +69,173 @@ public class TableGUI extends JFrame {
                 String ObjButtons[] = {"Yes", "No"};
                 int PromptResult = JOptionPane.showOptionDialog(null, "Are you sure you want to exit?", "Saperska Mustard", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, ObjButtons, ObjButtons[1]);
                 if (PromptResult == JOptionPane.YES_OPTION) {
-                    board.getConnection().send(Client.DISCONNECT_SIGNAL);//sending USER_DISCONNECTED_SIGNAL so server will can tell others that one has disconnected
+                    stopTimer();
+                    board.getConnection().disconnect();  //sending USER_DISCONNECTED_SIGNAL so server will can tell others that one has disconnected
                     System.exit(0);
                 }
             }
         });
+        this.lookAndFeelCustomization();
+
         initComponents();
         makeTheTable();
-        pack();
     }
 
-
     private void initComponents() {
-        add(mainPanel);
-        if (isHost)
+
+        whosePlayerTurnItIsLabel = new JLabel();
+        boardPanel = new JPanel();
+        chatboxMessageField = new JTextField();
+        quitToMMButton = new JButton();
+        startGameButton = new JButton();
+        statusIcon = new JLabel();
+        minesLeftLabel = new JLabel();
+        paneOfChatbox = new JScrollPane();
+        chatboxArea = new JTextArea();
+        timerLabel = new JLabel();
+
+        paneOfChatbox.setWheelScrollingEnabled(true);
+        paneOfChatbox.getViewport().setView(chatboxArea);
+        chatboxArea.setMaximumSize(chatboxArea.getSize());
+        chatboxArea.setEditable(false);
+
+        if (clientUsername.equals(usernameOfHost))
             startGameButton.setVisible(true);
         else
             startGameButton.setVisible(false);
+
+        whosePlayerTurnItIsLabel.setFont(new java.awt.Font("Tahoma", Font.BOLD, 12));
+        whosePlayerTurnItIsLabel.setHorizontalTextPosition(SwingConstants.RIGHT);
 
         if (boardSize >= 14)
             whosePlayerTurnItIsLabel.setText("<html>Waiting for the game to start</html>");
         else
             whosePlayerTurnItIsLabel.setText("<html>Waiting for start</html>");
 
+        whosePlayerTurnItIsLabel.setPreferredSize(new java.awt.Dimension(boardSize * 15 / 2, 15));
+
+        boardPanel.setPreferredSize(new java.awt.Dimension(boardSize * 25, boardSize * 25));
+
+        boardPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+        boardPanel.setForeground(new java.awt.Color(0, 0, 5));
+
+        GridLayout boardPanelLayout = new GridLayout();
+        boardPanel.setLayout(boardPanelLayout);
+
+        quitToMMButton.setText("Quit");
+
+        startGameButton.setText("Start game");
+
+        statusIcon.setHorizontalAlignment(SwingConstants.CENTER);
+        statusIcon.setText("");
+        statusIcon.setFont(new java.awt.Font("Tahoma", 3, 12));
+
+        minesLeftLabel.setFont(new java.awt.Font("Tahoma", 3, 12));
         minesLeftLabel.setText("<html>" + counterOfMinesLeft + " mines left</html>");
+
+        chatboxArea.setColumns(boardSize);
+        chatboxArea.setRows(boardSize);
+        paneOfChatbox.setViewportView(chatboxArea);
+        paneOfChatbox.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        paneOfChatbox.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
+        setUpLayout();
+
+        pack();
         setLocationRelativeTo(null);
         addActionListeners();
 
     }
+
+    public void stopTimer() {
+        if (timerThread.isAlive()) {
+            try {
+                timerThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void runTimer() {
+
+        timerThread.start();
+
+    }
+
+    private void setUpLayout() {
+        GroupLayout layout = new GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addComponent(minesLeftLabel, GroupLayout.PREFERRED_SIZE, boardSize * 10, GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(statusIcon, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(timerLabel, GroupLayout.PREFERRED_SIZE, boardSize * 10, GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(boardPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                                        .addGroup(GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                                .addComponent(startGameButton)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(quitToMMButton, GroupLayout.PREFERRED_SIZE, 90, GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(chatboxMessageField, GroupLayout.Alignment.LEADING)
+                                        .addGroup(GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(whosePlayerTurnItIsLabel, GroupLayout.PREFERRED_SIZE, boardSize * 15, GroupLayout.PREFERRED_SIZE)
+                                                .addGap(0, 0, Short.MAX_VALUE))
+                                        .addComponent(paneOfChatbox, GroupLayout.PREFERRED_SIZE, 250, GroupLayout.PREFERRED_SIZE))
+                                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(minesLeftLabel)
+                                        .addComponent(timerLabel)
+                                        .addComponent(statusIcon)
+                                        .addComponent(whosePlayerTurnItIsLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                .addGap(10, 10, 10)
+                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addComponent(paneOfChatbox, GroupLayout.PREFERRED_SIZE, boardSize * 20, GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(chatboxMessageField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+                                                        .addComponent(startGameButton, GroupLayout.PREFERRED_SIZE, 37, GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(quitToMMButton, GroupLayout.PREFERRED_SIZE, 37, GroupLayout.PREFERRED_SIZE)))
+                                        .addComponent(boardPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                .addContainerGap())
+        );
+    }
+
+    public void lookAndFeelCustomization() {
+
+        try {
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Steel".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(TableGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(TableGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(TableGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(TableGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+
+    } // added by default from NetBeans
 
     private void addActionListeners() {
         chatboxMessageField.addKeyListener(new KeyListener() {
@@ -98,8 +259,6 @@ public class TableGUI extends JFrame {
                     message = clientUsername + ": " + message;
                     chatboxMessageField.setText("");
                     board.getConnection().send(message);
-                    //chatboxArea.append(message);//we really dont need the chatbox class I think. just append message to chatboxArea
-                    // chatbox.addMessage(message);
                     if (message.contains("penis")) statusIcon.setText("( ͡° ͜ʖ ͡°)");
                     if (message.contains("such") && message.contains("and")) {
                         whosePlayerTurnItIsLabel.setText("such");
@@ -109,8 +268,7 @@ public class TableGUI extends JFrame {
 
                 }
             }
-        }); // catches messages sent through the chat box and sends them to the
-        // Chatbox class
+        });
 
         quitToMMButton.addActionListener(new ActionListener() {
 
@@ -121,10 +279,12 @@ public class TableGUI extends JFrame {
                     String ObjButtons[] = {"Yes", "No"};
                     int PromptResult = JOptionPane.showOptionDialog(null, "Are you sure you want to quit to main menu?", "Multiplayer Minesweeper", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, ObjButtons, ObjButtons[1]);
                     if (PromptResult == JOptionPane.YES_OPTION) {
+                        stopTimer();
                         board.getConnection().disconnect();
                         dispose();
                     }
                 } else {
+                    stopTimer();
                     board.getConnection().disconnect();
                     dispose();
                 }
@@ -148,12 +308,17 @@ public class TableGUI extends JFrame {
 
     } // assigngs Action Listeners to some components
 
+    public void addMessage(String message) {
+        if (!message.endsWith(": ") && !message.endsWith("> ")) {
+            chatboxArea.append(message + "\n");
+            chatboxArea.setCaretPosition(chatboxArea.getText().length());
+            paneOfChatbox.getVerticalScrollBar().setValue(paneOfChatbox.getVerticalScrollBar().getMaximum());
+        }
+    }
 
     private void makeTheTable() {
 
         // this method adds squares to the boardPanel
-        // and sets up the Board, i guess
-
         GridLayout boardPanelLayout = new GridLayout(boardSize, boardSize);
         boardPanel.setLayout(boardPanelLayout);
 
@@ -193,6 +358,5 @@ public class TableGUI extends JFrame {
     public JLabel getWhosePlayerTurnItIsLabel() {
         return whosePlayerTurnItIsLabel;
     }
-
 
 }

@@ -11,11 +11,11 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 
     //whoops, this class will get recreated any second now
 
-    final private static String DEFAULT_USERNAME_FIELD_TEXT = "TEST";
-    public static String DEFAULT_IP_ADDRESS;
-    String username;
-    int boardSize;
-    private JTextField theIpField = new JTextField();
+    final private static String DEFAULT_USERNAME = "TEST";
+    private static String DEFAULT_IP_ADDRESS;
+    private String username;
+    private int boardSize;
+    private JTextField theIpField;
     private JButton createTableButton;
     private JButton backToMMButton;
     private JLabel ipLabel;
@@ -42,6 +42,7 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
     private void initComponents() {
 
         theFieldInWhichYouInputYourUsername = new JTextField();
+        theIpField = new JTextField();
         usernameLabel = new JLabel();
         ipLabel = new JLabel();
         createTableButton = new JButton();
@@ -52,7 +53,7 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
 
         theIpField.setText(DEFAULT_IP_ADDRESS);
 
-        theFieldInWhichYouInputYourUsername.setText(DEFAULT_USERNAME_FIELD_TEXT);
+        theFieldInWhichYouInputYourUsername.setText(DEFAULT_USERNAME);
         theFieldInWhichYouInputYourUsername.setToolTipText("enter your username here");
 
         usernameLabel.setFont(new java.awt.Font("Tahoma", 1, 12));
@@ -89,7 +90,15 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
         textField.setToolTipText("enter the IP of the server here");
 
         spinner = new JSpinner();
-        spinner.setModel(new SpinnerNumberModel(10, 6, 40, 1));
+        spinner.setModel(new SpinnerNumberModel(10, 4, 30, 1));
+
+        setUpLayout();
+
+        pack();
+        setLocationRelativeTo(null);
+    }
+
+    private void setUpLayout() {
 
         GroupLayout layout = new GroupLayout(getContentPane());
         layout.setHorizontalGroup(
@@ -137,9 +146,6 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
                                 .addGap(50))
         );
         getContentPane().setLayout(layout);
-
-        pack();
-        setLocationRelativeTo(null);
     }
 
     private void backToMMButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -169,7 +175,7 @@ public class TheFrameInWhichYouCreateANewTable extends JFrame {
                 System.out.println("Should be establishing connection with server now.");
 
                 try {
-                    Client hostConnection = new Client(true, ip, username, boardSize);//starting server connection as host (new lobby)
+                    new Client(true, ip, username, boardSize);//starting server connection as host (new lobby)
                     this.dispose();
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(this, "An error occurred: " + e.getMessage(), "Saperska Mustard", JOptionPane.ERROR_MESSAGE);

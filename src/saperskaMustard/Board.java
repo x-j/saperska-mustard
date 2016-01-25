@@ -81,6 +81,8 @@ public class Board {
 
         System.out.println("setting up squares now.");
 
+        //gui.runTimer();
+
         for (int i = 0; i < boardSize; i++)
             for (int j = 0; j < boardSize; j++) if (mines[i][j]) squares[i][j].setContent(MINE);
 
@@ -101,10 +103,13 @@ public class Board {
             }
         }
         if (!hasBegun) gameStart();
+
     }
 
     public void gameStart() {
         //ALL THIS METHOD DOES IS ENABLE THE SQUARES
+        //and change the status icon in the gui
+        gui.getStatusIcon().setText("We're alive!");
         if (!hasBegun) {
             gui.getWhosePlayerTurnItIsLabel().setText(usernameOfHost + "'s turn");
             hasBegun = true;
@@ -135,12 +140,26 @@ public class Board {
 
         // after receiving information from the server about a clicked square,
         // we update our local Board
+        System.out.println("The client: " + clientUsername + " has the following players in his array list: ");
+        for (String s : players)
+            System.out.println(s);
 
         squares[i][j].reveal();
+
+        // we unfortunately have to check if the game is over or not
+        //this means iterating through all the squares to find if there are any non-mine fields left uncovered:
+        if (squares[0][0].getContent() != -1 && !gameOver) {
+            if (checkForVictory()) {
+                gameOver = true;
+                gui.stopTimer();
+                for (SquareButton sb : SquareButton.ALL_SQUAREBUTTONS)
+                    sb.reveal();
+                JOptionPane.showMessageDialog(gui, "Victory!", "Saperska Mustard", JOptionPane.INFORMATION_MESSAGE);
+                gui.getStatusIcon().setText("VICTORY");
+            }
+        }
+
         if (!gameOver) {
-            System.out.println("The client: " + clientUsername + " has the following players in his array list: ");
-            for (String s : players)
-                System.out.println(s);
 
             currentPlayerIndex++;
             currentPlayerIndex %= players.size();
@@ -151,28 +170,27 @@ public class Board {
             else
                 notYourTurn();
         }
-        // we unfortunately have to check if the game is over or not
-        //this means iterating through all the squares to find if there are any non-mine fields left uncovered:
-        if (checkForVictory()) {
-            gameOver = true;
-            JOptionPane.showMessageDialog(gui, "Victory!", "Saperska Mustard", JOptionPane.INFORMATION_MESSAGE);
-            gui.getStatusIcon().setText("VICTORY");
-        }
-
 
     }
 
     private boolean checkForVictory() {
         //worst case time complexity is of order n^2 ... can it be done more efficiently?
         //incidentally, the closer the user is to victory, the longer the execution of this method will take.
-        for (SquareButton sb : SquareButton.ALL_SQUAREBUTTONS)
-            if (sb.getContent() != MINE && sb.isUncovered()) return false;
+
+        for (SquareButton sb : SquareButton.ALL_SQUAREBUTTONS) {
+            if (sb.getContent() < 9 && !sb.isUncovered()) {
+                System.out.println("sadly, the square at " + sb.getI() + ", " + sb.getJ() + " is not uncovered ");
+                return false;
+            }
+        }
         return true;
+
     }
 
     public void updateBoard(GameInfo gi) {
         players = gi.getPlayers();
         //TODO not so fast, we have to update CurrentPlayer and CurrentPlayerIndex so game can continue even when someone bails out (if someone disconnects)
+
     }   //deceptively simple method, gets called by Client, tells us about the changed number of players in the game.
 
     public void uncoverEmptyAdjacent(int i, int j) {

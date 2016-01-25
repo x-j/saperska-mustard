@@ -14,6 +14,7 @@ import java.util.Properties;
 public class MinesweeperThreadedServer {
 
     private static final int USER_DISCONNECTED_SIGNAL = 2;
+    private static final int NO_OPEN_GAMES_SIGNAL = 3;
 
     public static int port; //WILL BE READ FROM config.xml file. is  the same as the variable port in TheFrameInWhichYouCreateANewTable.java and wherever join random game button is
     public static int INDEXER = 0;  //helps us index games so that their indexes dont overlap
@@ -47,8 +48,7 @@ public class MinesweeperThreadedServer {
                             System.out.println("Waiting for a client to connect on port " + port);
                             Socket clientsSocket = serverSocket.accept();
                             ALL_CLIENTS.add(new ConnectionToClient(clientsSocket));
-                            /*Need to comment the below for now because we get a null pointer error when joining*/
-                            //sGUI.updateClientsConnectedLabel(); //updates the label which indicates how many users are connected
+                            sGUI.updateClientsConnectedLabel(); //updates the label which indicates how many users are connected
 
                         } catch (IOException e) {
                             JOptionPane.showMessageDialog(sGUI, "An error occurred (IOException in Thread waitingForClientsToConnect): ", "Saperska Mustard", JOptionPane.ERROR_MESSAGE);
@@ -87,13 +87,20 @@ public class MinesweeperThreadedServer {
 
     }
 
+    private static boolean noOpenGames() {
+        if (ALL_GAMES.size() == 0) return true;
+        for (Game g : ALL_GAMES.values()) if (g.isOpen()) return false;
+        return true;
+    }
+
+
     public static ArrayList<ConnectionToClient> getAllClients() {
         return ALL_CLIENTS;
     }
 
-    public static void status(String status) {//hahahahahahahaha
+    public static void status(String status) {
 
-        if (status.contains("Nowiński")) for (int i = 0; i < 500; i++)
+        if (status.contains("Nowinski")) for (int i = 0; i < 500; i++)
             sGUI.addStatus("CLEAR THAT POINT");
         sGUI.addStatus(status);
 
@@ -103,11 +110,12 @@ public class MinesweeperThreadedServer {
         return ALL_GAMES.get(gameIndex);
     }
 
+    public static void sendToOne(Object object, String username) {
+        for (ConnectionToClient c : ALL_CLIENTS) if (c.usernameOfClient.equals(username)) c.write(object);
+    }
+
     public static void sendToGame(Object obj, int gameIndex) {
-        for (ConnectionToClient c : ALL_CLIENTS) {
-            if (c.getGameIndex() == gameIndex) c.write(obj);
-            System.out.println("Client by the name of " + c.getUsernameOfClient() + " has a gameIndex of" + c.getGameIndex());
-        }
+        for (ConnectionToClient c : ALL_CLIENTS) if (c.getGameIndex() == gameIndex) c.write(obj);
 
     }
 
@@ -153,11 +161,9 @@ public class MinesweeperThreadedServer {
                                 clientIsHost = true;
                                 usernameOfClient = info.getUsernameOfHost();    //since we're the host, we just take this from info
 
-
                                 //make a new Game from the info:
                                 Game newGame = new Game(info);
                                 gameIndex = info.getGameIndex();
-                                //ALL_GAMES.add(newGame);
 
                                 ALL_GAMES.put(gameIndex, newGame);
                                 System.out.println("Server claims there are this many games atm: " + ALL_GAMES.size());
@@ -175,33 +181,43 @@ public class MinesweeperThreadedServer {
                                     String newPlayer = (String) obj;
                                     usernameOfClient = newPlayer.substring(1);  //remove the @ from the username
                                     status(usernameOfClient + " connected to the server!");
-                                    //find a suitable Game for the new Client
-                                    Game game = null;
-                                    int i = 0;
-                                    do {
 
-                                        while (game == null) {//while game does not exist we look for one, this fixed a nullptr error
+                                    //find a suitable Game for the new Client:
+//                                    first we check if such a game even exists:
+                                    if (noOpenGames())
+                                        sendToOne(NO_OPEN_GAMES_SIGNAL, usernameOfClient);
+                                    else {
+
+                                        Game game;
+                                        int i;
+                                        do {
                                             i = (int) (Math.random() * INDEXER); //we randomize a game for him here
-                                            game = getGame(i);
                                             System.out.println("i: " + i);
+                                            game = getGame(i);
                                         }
-                                    } while (!game.isOpen());//looping through all games until one is open
+                                        while (!ALL_GAMES.containsKey(i) || !game.isOpen());//looping through all games until one is open
+                                        System.out.println("info of found game: ");
+                                        System.out.println(game.getInfo());
+                                        //add the new player to the game:
+                                        if (game.getInfo().getPlayers().contains(usernameOfClient))
+                                            usernameOfClient += "1";  //this line right here gets rid of the awkwardness of having two players with the same username in-game
+                                        game.addPlayer(usernameOfClient);
+                                        status(usernameOfClient + " connected to game " + game.getIndex() + " whose host is " + game.getUsernameOfHost());
 
-                                    //add the new player to the game:
-                                    game.addPlayer(usernameOfClient);
-                                    status(usernameOfClient + " connected to game " + game.getIndex() + " whose host is " + game.getUsernameOfHost());
-
-                                    //now we send the updated GameInfo to all players in that game
-                                    //this also means that the newly connected player will learn what the size of the Board is, etc.
-                                    GameInfo info = game.getInfo();
-                                    gameIndex = info.getGameIndex();
-                                    sendToGame(info, gameIndex);
-                                    sendToGame("SERVER: " + usernameOfClient + " connected to this game!", getGameIndex());
+                                        //now we send the updated GameInfo to all players in that game
+                                        //this also means that the newly connected player will learn what the size of the Board is, etc.
+                                        GameInfo info = game.getInfo();
+                                        gameIndex = info.getGameIndex();
+                                        System.out.println("Players in this GameInfo set to client: ");
+                                        System.out.println(info.getPlayers());
+                                        sendToGame(info, gameIndex);
+                                        sendToGame("SERVER: " + usernameOfClient + " connected to this game!", getGameIndex());
+                                    }
                                 }
 
                                 //IF THE STRING DID NOT START WITH '@', THEN ITS A CHAT MESSAGE, SO WE SEND IT TO ALL PLAYERS IN THIS GAME
                                 else {
-                                    sendToGame((String) obj, getGameIndex());
+                                    sendToGame(obj, getGameIndex());
                                     status((String) obj);
                                 }
                             }
@@ -226,13 +242,11 @@ public class MinesweeperThreadedServer {
                                 //IF THE SIGNAL IS == USER_DISCONNECTED_SIGNAL, WE REMOVE THIS PLAYER FROM THE GAME, and the server
                                 if (signal == USER_DISCONNECTED_SIGNAL) {
                                     getGame(gameIndex).removePlayer(usernameOfClient);
-                                    ALL_CLIENTS.remove(this);
                                     closeConnections();
                                     //GameInfo gets updated: new ArrayList of players is smaller!
                                     //THEN SEND THE UPDATED GAMEINFO TO ALL PLAYERS IN THE GAME.
                                     if (!clientIsHost)
                                         sendToGame(getGame(gameIndex).getInfo(), gameIndex);
-                                    //TODO somehow close connection so we don't get weird server error
                                 }
 
                             }
@@ -261,6 +275,7 @@ public class MinesweeperThreadedServer {
 
         }
 
+
         public int getGameIndex() {
             return this.gameIndex;
         }
@@ -283,6 +298,7 @@ public class MinesweeperThreadedServer {
         public void closeConnections() {
             try {
                 //we're shutting down server-side connections to client, and closing socket because this client disconnected
+                ALL_CLIENTS.remove(this);
                 sGUI.updateClientsConnectedLabel(); //updates the label which indicates how many users are connected
                 outputToClient.close();
                 inputFromClient.close();

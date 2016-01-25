@@ -19,7 +19,7 @@ public class SquareButton extends JButton {
     private static Icon icons[] = new ImageIcon[12];
 
     private Board board;
-    private int content = -1; // -1 is a placeholder until we get the real info from Board.
+    private int content = -1; // 11 is a placeholder until we get the real info from Board.
     private boolean uncovered = false;
     private boolean flagged = false;
     private int i, j;
@@ -98,6 +98,8 @@ public class SquareButton extends JButton {
         this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         this.setEnabled(false);
         this.setVisible(true);
+        this.setSize(25, 25);
+        this.setMaximumSize(new Dimension(25, 25));
         this.setHorizontalAlignment(SwingConstants.CENTER);
         this.addActionListener(squareActionListener);
         this.addMouseListener(squareOtherClickListener);
@@ -121,13 +123,13 @@ public class SquareButton extends JButton {
 
     private void drawIcon(int arg) {
 
-        if (arg != 0 && arg <= 8) this.setText("<html><font color = \"red\">" + content + "</font></html>");
+        if (arg != 0 && arg <= 8) this.setText("<html><font color = \"red\">" + arg + "</font></html>");
         else if (arg == 9)
             setText("<html><font color = \"blue\">F</font></html>");    //I HAVE NO IDEA WHY THIS IS NOT WORKING
         else if (arg == 10) setText("<html><font color = \"black\">M</font></html>");
         else if (arg == 0) setText("");
-        this.setPressedIcon(icons[content]);
-        this.setDisabledIcon(icons[content]);
+        this.setPressedIcon(icons[arg]);
+        this.setDisabledIcon(icons[arg]);
     }
 
     private void clean() {
@@ -139,6 +141,7 @@ public class SquareButton extends JButton {
     }
 
     public void reveal() {
+        this.board.getGui().pack();
         if (!flagged) {
             uncovered = true;
             this.drawIcon(content);
@@ -146,7 +149,9 @@ public class SquareButton extends JButton {
             this.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
             board.uncoverEmptyAdjacent(i, j);
             if (content == Board.MINE && !board.isGameOver()) {
+                board.getGui().stopTimer();
                 board.setGameOver(true);
+                board.getGui().getStatusIcon().setText("DEAD!");
                 JOptionPane.showMessageDialog(this.getParent(), "Game over!");
                 for (SquareButton sb : SquareButton.ALL_SQUAREBUTTONS) {
                     sb.setEnabled(false);

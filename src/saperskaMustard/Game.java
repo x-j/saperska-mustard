@@ -28,6 +28,7 @@ public class Game {
     public void click(int i, int j) {   //this method will be called from some outer class, ints i, j come from the user
         // it sets up the mines if there arent any, and then shares the information about a makeClick with other players
         if (!firstClickHappened) {
+            isOpen = false;
             firstClickHappened = true;
             //sets up the mines here.
             for (int iterator = 0; iterator < numberOfMines; iterator++) {
@@ -36,7 +37,7 @@ public class Game {
                 do {
                     rand1 = (int) (Math.random() * info.getBoardSize());
                     rand2 = (int) (Math.random() * info.getBoardSize());
-                } while (mines[rand1][rand2] == true || (rand1 == i && rand2 == j));
+                } while (mines[rand1][rand2] || (rand1 == i && rand2 == j));
 
                 mines[rand1][rand2] = true;
             }
@@ -56,15 +57,14 @@ public class Game {
 
     public void addPlayer(String usernameOfPlayer) {
 
-        if (getPlayers().contains(usernameOfPlayer))
-            usernameOfPlayer += "1";  //this line right here gets rid of the awkwardness of having two players with the same username in-game
+        System.out.println(info.getPlayers());
         System.out.println("a player: " + usernameOfPlayer + " connected to game " + getIndex());
         info.getPlayers().add(usernameOfPlayer);
         if (info.getPlayers().size() == 4) {
             isOpen = false;
             System.out.println("A game of index " + getIndex() + " was filled.");
         }
-
+        System.out.println("now it looks like this: " + info);
     }
 
     public void removePlayer(String usernameOfPlayer) {
